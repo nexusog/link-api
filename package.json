@@ -1,22 +1,24 @@
 {
-  "private": "true",
-  "name": "@nexusog/link-api",
-  "version": "0.0.1",
-  "scripts": {
-    "dev": "bun run --watch src/index.ts",
-    "start": "bun run src/index.ts"
-  },
-  "dependencies": {
-    "@elysiajs/swagger": "^1.1.6",
-    "@open-draft/until": "^2.1.0",
-    "@prisma/client": "^5.22.0",
-    "@tqman/nice-logger": "^1.0.7",
-    "consola": "^3.2.3",
-    "elysia": "latest"
-  },
-  "devDependencies": {
-    "bun-types": "latest",
-    "prisma": "^5.22.0"
-  },
-  "module": "src/index.js"
+	"private": "true",
+	"name": "@nexusog/link-api",
+	"version": "0.0.1",
+	"scripts": {
+		"dev": "bun run --watch src/index.ts",
+		"start": "bun run src/index.ts",
+		"format": "prettier --write ."
+	},
+	"dependencies": {
+		"@elysiajs/swagger": "^1.1.6",
+		"@open-draft/until": "^2.1.0",
+		"@prisma/client": "^5.22.0",
+		"@tqman/nice-logger": "^1.0.7",
+		"consola": "^3.2.3",
+		"elysia": "latest"
+	},
+	"devDependencies": {
+		"bun-types": "latest",
+		"prettier": "^3.3.3",
+		"prisma": "^5.22.0"
+	},
+	"module": "src/index.js"
 }
