@@ -1,7 +1,7 @@
-import { baseElysia } from "@/base";
-import { LinkCreateRoute } from "./create";
+import { baseElysia } from '@/base'
+import { LinkCreateRoute } from './create'
 
 export const LinkRoutes = baseElysia({
-  prefix: "/link",
-  name: "IdRoutes",
-}).use(LinkCreateRoute);
+	prefix: '/link',
+	name: 'IdRoutes',
+}).use(LinkCreateRoute)

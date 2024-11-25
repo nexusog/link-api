@@ -2,10 +2,10 @@
  * Custom error class for missing environment variables.
  */
 class EnvNotFoundError extends Error {
-  constructor(key: string) {
-    super(`Could not find "${key}" environment variable`);
-    this.name = "EnvNotFoundError";
-  }
+	constructor(key: string) {
+		super(`Could not find "${key}" environment variable`)
+		this.name = 'EnvNotFoundError'
+	}
 }
 
 /**
@@ -15,11 +15,11 @@ class EnvNotFoundError extends Error {
  * @throws If the environment variable is not found.
  */
 function get(key: string): string {
-  const value = Bun.env[key];
-  if (value === undefined) {
-    throw new EnvNotFoundError(key);
-  }
-  return value;
+	const value = Bun.env[key]
+	if (value === undefined) {
+		throw new EnvNotFoundError(key)
+	}
+	return value
 }
 
 /**
@@ -29,7 +29,7 @@ function get(key: string): string {
  * @returns The value of the environment variable, the fallback value, or null.
  */
 function getSafe(key: string, fallbackValue?: string): string | null {
-  return Bun.env[key] ?? fallbackValue ?? null;
+	return Bun.env[key] ?? fallbackValue ?? null
 }
 
 /**
@@ -38,12 +38,12 @@ function getSafe(key: string, fallbackValue?: string): string | null {
  * @returns The boolean value.
  */
 function parseBool(value: string): boolean {
-  return (
-    value.toLowerCase() === "true" ||
-    value.toLowerCase() === "on" ||
-    value.toLowerCase() === "yes" ||
-    value === "1"
-  );
+	return (
+		value.toLowerCase() === 'true' ||
+		value.toLowerCase() === 'on' ||
+		value.toLowerCase() === 'yes' ||
+		value === '1'
+	)
 }
 
 /**
@@ -53,7 +53,7 @@ function parseBool(value: string): boolean {
  * @throws If the environment variable is not found.
  */
 function getBool(key: string): boolean {
-  return parseBool(get(key));
+	return parseBool(get(key))
 }
 
 /**
@@ -62,14 +62,14 @@ function getBool(key: string): boolean {
  * @param fallbackValue - The fallback value to return if the environment variable is not found.
  * @returns The boolean value of the environment variable, the fallback value, or null.
  */
-function getBoolSafe(key: string, fallbackValue: boolean): boolean;
-function getBoolSafe(key: string, fallbackValue?: boolean): boolean | null;
+function getBoolSafe(key: string, fallbackValue: boolean): boolean
+function getBoolSafe(key: string, fallbackValue?: boolean): boolean | null
 function getBoolSafe(key: string, fallbackValue?: boolean): boolean | null {
-  const value = Bun.env[key];
-  if (value === undefined) {
-    return fallbackValue ?? null;
-  }
-  return parseBool(value);
+	const value = Bun.env[key]
+	if (value === undefined) {
+		return fallbackValue ?? null
+	}
+	return parseBool(value)
 }
 
 /**
@@ -80,11 +80,11 @@ function getBoolSafe(key: string, fallbackValue?: boolean): boolean | null {
  * @throws If the value is not a valid integer.
  */
 function parseIntValue(value: string, key: string): number {
-  const intValue = parseInt(value, 10);
-  if (isNaN(intValue)) {
-    throw new Error(`Environment variable "${key}" is not a valid integer`);
-  }
-  return intValue;
+	const intValue = parseInt(value, 10)
+	if (isNaN(intValue)) {
+		throw new Error(`Environment variable "${key}" is not a valid integer`)
+	}
+	return intValue
 }
 
 /**
@@ -94,7 +94,7 @@ function parseIntValue(value: string, key: string): number {
  * @throws If the environment variable is not found or is not a valid integer.
  */
 function getInt(key: string): number {
-  return parseIntValue(get(key), key);
+	return parseIntValue(get(key), key)
 }
 
 /**
@@ -103,25 +103,25 @@ function getInt(key: string): number {
  * @param fallbackValue - The fallback value to return if the environment variable is not found or invalid.
  * @returns The integer value of the environment variable, the fallback value, or null.
  */
-function getIntSafe(key: string, fallbackValue: number): number;
-function getIntSafe(key: string, fallbackValue?: number): number | null;
+function getIntSafe(key: string, fallbackValue: number): number
+function getIntSafe(key: string, fallbackValue?: number): number | null
 function getIntSafe(key: string, fallbackValue?: number): number | null {
-  const value = Bun.env[key];
-  if (value === undefined) {
-    return fallbackValue ?? null;
-  }
-  try {
-    return parseIntValue(value, key);
-  } catch {
-    return fallbackValue ?? null;
-  }
+	const value = Bun.env[key]
+	if (value === undefined) {
+		return fallbackValue ?? null
+	}
+	try {
+		return parseIntValue(value, key)
+	} catch {
+		return fallbackValue ?? null
+	}
 }
 
 export const env = {
-  get,
-  getSafe,
-  getBool,
-  getBoolSafe,
-  getInt,
-  getIntSafe,
-};
+	get,
+	getSafe,
+	getBool,
+	getBoolSafe,
+	getInt,
+	getIntSafe,
+}
