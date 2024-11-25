@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Link {
+    id String @id
+
+    title String
+    url   String
+
+    shortName String
+
+    engagements Engagement[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Engagement {
+    id String @id @default(cuid())
+
+    ip            String?
+    userAgent     String?
+    originCountry String?
+    originCity    String?
+
+    engagementType EngagementType @default(UNKNOWN)
+
+    link   Link   @relation(fields: [linkId], references: [id])
+    linkId String
+
+    createdAt DateTime @default(now())
+}
+
+enum EngagementType {
+    CLICK
+    QR
+    UNKNOWN
+}
