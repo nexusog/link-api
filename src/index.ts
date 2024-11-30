@@ -19,6 +19,12 @@ export const app = baseElysia({
 	.use(
 		swagger({
 			path: '/swagger',
+			documentation: {
+				info: {
+					title: 'Link API',
+					version: '0.0.1',
+				},
+			},
 		}),
 	)
 	.use(V1Routes)
