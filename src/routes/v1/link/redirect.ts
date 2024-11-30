@@ -9,16 +9,8 @@ import { redirect, t } from 'elysia'
 import { ip } from 'elysia-ip'
 
 const LinkRedirectQuerySchema = t.Object({
-	qr: t.Optional(
-		t.Boolean({
-			default: false,
-		}),
-	),
-	click: t.Optional(
-		t.Boolean({
-			default: true,
-		}),
-	),
+	qr: t.Optional(t.Any()),
+	click: t.Optional(t.Any()),
 })
 
 export const LinkRedirectRoute = baseElysia()
