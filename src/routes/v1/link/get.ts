@@ -7,6 +7,8 @@ import {
 import {
 	LinkAccessTokenSchema,
 	LinkIdSchema,
+	LinkShortNameSchema,
+	LinkTitleSchema,
 	LinkURLSchema,
 } from '@/types/schema'
 import { logger } from '@/utils/logger'
@@ -68,18 +70,17 @@ export const LinkGetRoute = baseElysia().get(
 			})
 		}
 
-		const baseResponse = {
-			...link,
-			accessTokens:
-				accessToken.role === LinkAccessTokenRole.VIEWER
-					? undefined
-					: link.accessTokens,
-		}
-
 		return {
 			error: false,
 			message: 'Link found',
-			data: baseResponse,
+			data: {
+				id: link.id,
+				url: link.url,
+				shortName: link.shortName,
+				title: link.title,
+				createdAt: link.createdAt,
+				updatedAt: link.updatedAt,
+			},
 		}
 	},
 	{
@@ -89,10 +90,11 @@ export const LinkGetRoute = baseElysia().get(
 				t.Object({
 					id: LinkIdSchema,
 					url: LinkURLSchema,
+					shortName: t.Nullable(LinkShortNameSchema),
+					title: LinkTitleSchema,
+					createdAt: t.Date(),
+					updatedAt: t.Date(),
 				}),
-				{
-					additionalProperties: true,
-				},
 			),
 			404: GeneralErrorResponseSchema,
 			500: GeneralErrorResponseSchema,
