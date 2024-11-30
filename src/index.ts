@@ -4,11 +4,18 @@ import { logger as NiceLogger } from '@tqman/nice-logger'
 import { logger } from '@/utils/logger'
 import { V1Routes } from '@/routes/v1'
 import { t } from 'elysia'
+import cors from '@elysiajs/cors'
 
 export const app = baseElysia({
 	precompile: true,
 	name: 'root',
 })
+	.use(
+		cors({
+			// TODO: allow specific
+			origin: '*',
+		}),
+	)
 	.use(
 		NiceLogger({
 			mode: 'live',
