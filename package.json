@@ -5,7 +5,8 @@
 	"scripts": {
 		"dev": "bun run --watch src/index.ts",
 		"start": "bun run src/index.ts",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"prepare": "bunx prisma generate"
 	},
 	"dependencies": {
 		"@elysiajs/swagger": "^1.1.6",
