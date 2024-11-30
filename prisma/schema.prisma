@@ -35,7 +35,7 @@ model LinkAccessToken {
 
     label String
 
-    token String
+    token String @unique
 
     link   Link   @relation(fields: [linkId], references: [id], onDelete: Cascade)
     linkId String
