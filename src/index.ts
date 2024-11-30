@@ -3,6 +3,7 @@ import { baseElysia } from '@/base'
 import { logger as NiceLogger } from '@tqman/nice-logger'
 import { logger } from '@/utils/logger'
 import { V1Routes } from '@/routes/v1'
+import { t } from 'elysia'
 
 export const app = baseElysia({
 	precompile: true,
@@ -28,9 +29,17 @@ export const app = baseElysia({
 		}),
 	)
 	.use(V1Routes)
-	.get('/ping', () => {
-		return 'OK'
-	})
+	.get(
+		'/ping',
+		() => {
+			return 'OK' as const
+		},
+		{
+			response: {
+				200: t.Literal('OK'),
+			},
+		},
+	)
 
 // Start the server
 const PORT = Bun.env.PORT
