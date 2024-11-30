@@ -1,6 +1,7 @@
 import { baseElysia } from '@/base'
 import db from '@/lib/db'
 import { ipInfoWrapper } from '@/lib/ip'
+import { GeneralErrorResponseSchema } from '@/types/response'
 import { logger } from '@/utils/logger'
 import { until } from '@open-draft/until'
 import { EngagementType } from '@prisma/client'
@@ -63,8 +64,8 @@ export const LinkRedirectRoute = baseElysia()
 				})
 			}
 
-			const { data: ipInfo } = await until(
-				async () => await ipInfoWrapper.lookupIp(incomingIp),
+			const { data: ipInfo } = await until(() =>
+				ipInfoWrapper.lookupIp(incomingIp),
 			)
 
 			await until(() =>
@@ -93,5 +94,10 @@ export const LinkRedirectRoute = baseElysia()
 		},
 		{
 			query: LinkRedirectQuerySchema,
+			response: {
+				307: t.Object({}),
+				500: GeneralErrorResponseSchema,
+				404: GeneralErrorResponseSchema,
+			},
 		},
 	)
