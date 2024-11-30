@@ -9,11 +9,14 @@
 	},
 	"dependencies": {
 		"@elysiajs/swagger": "^1.1.6",
+		"@nexusog/crypto": "^1.0.0-alpha.3",
 		"@open-draft/until": "^2.1.0",
 		"@prisma/client": "^5.22.0",
 		"@tqman/nice-logger": "^1.0.7",
 		"consola": "^3.2.3",
-		"elysia": "latest"
+		"elysia": "latest",
+		"elysia-ip": "^1.0.7",
+		"node-ipinfo": "^4.0.1"
 	},
 	"devDependencies": {
 		"bun-types": "latest",

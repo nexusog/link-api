@@ -7,13 +7,20 @@ export const GeneralSuccessResponseSchema = t.Object({
 
 export const ConstructSuccessResponseSchemaWithData = <T extends TSchema>(
 	data: T,
+	options: Partial<Parameters<typeof t.Object>[1]> = {},
 ) => {
-	return t.Composite([
-		GeneralSuccessResponseSchema,
-		t.Object({
-			data,
-		}),
-	])
+	return t.Composite(
+		[
+			GeneralSuccessResponseSchema,
+			t.Object({
+				data,
+			}),
+		],
+		{
+			readOnly: true,
+			...options,
+		},
+	)
 }
 
 export const GeneralErrorResponseSchema = t.Object({
@@ -23,11 +30,18 @@ export const GeneralErrorResponseSchema = t.Object({
 
 export const ConstructErrorResponseSchemaWithData = <T extends TSchema>(
 	data: T,
+	options: Partial<Parameters<typeof t.Object>[1]> = {},
 ) => {
-	return t.Composite([
-		GeneralErrorResponseSchema,
-		t.Object({
-			data,
-		}),
-	])
+	return t.Composite(
+		[
+			GeneralErrorResponseSchema,
+			t.Object({
+				data,
+			}),
+		],
+		{
+			readOnly: true,
+			...options,
+		},
+	)
 }

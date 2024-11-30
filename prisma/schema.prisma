@@ -19,9 +19,28 @@ model Link {
     title String
     url   String
 
-    shortName String
+    shortName String? @unique
 
-    engagements Engagement[]
+    engagements  Engagement[]
+    accessTokens LinkAccessToken[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([id, shortName])
+}
+
+model LinkAccessToken {
+    id String @id @default(cuid())
+
+    label String
+
+    token String
+
+    link   Link   @relation(fields: [linkId], references: [id], onDelete: Cascade)
+    linkId String
+
+    role LinkAccessTokenRole @default(VIEWER)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -34,10 +53,11 @@ model Engagement {
     userAgent     String?
     originCountry String?
     originCity    String?
+    originRegion  String?
 
     engagementType EngagementType @default(UNKNOWN)
 
-    link   Link   @relation(fields: [linkId], references: [id])
+    link   Link   @relation(fields: [linkId], references: [id], onDelete: Cascade)
     linkId String
 
     createdAt DateTime @default(now())
@@ -47,4 +67,10 @@ enum EngagementType {
     CLICK
     QR
     UNKNOWN
+}
+
+enum LinkAccessTokenRole {
+    OWNER
+    ADMIN
+    VIEWER
 }
