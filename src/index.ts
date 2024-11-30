@@ -22,6 +22,9 @@ export const app = baseElysia({
 		}),
 	)
 	.use(V1Routes)
+	.get('/ping', () => {
+		return 'OK'
+	})
 
 // Start the server
 const PORT = Bun.env.PORT
