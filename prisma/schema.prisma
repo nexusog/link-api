@@ -13,6 +13,17 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+model ApiKey {
+    id String @id @default(cuid())
+
+    key   String @unique
+    label String
+
+    createdAt DateTime @default(now())
+
+    @@index([id, key])
+}
+
 model Link {
     id String @id
 

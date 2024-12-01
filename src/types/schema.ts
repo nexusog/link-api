@@ -1,6 +1,18 @@
 import { LinkAccessTokenRole } from '@prisma/client'
 import { t } from 'elysia'
 
+export const ApiKeySchema = t.String({
+	minLength: 64,
+	maxLength: 64,
+	description: 'The API key',
+})
+
+export const ApiKeyLabelSchema = t.String({
+	minLength: 1,
+	maxLength: 100,
+	description: 'The label of the API key',
+})
+
 export const LinkTitleSchema = t.String({
 	minLength: 2,
 	maxLength: 100,
