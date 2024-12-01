@@ -32,7 +32,7 @@ model Link {
     title String
     url   String
 
-    shortName String? @unique
+    shortName String?
 
     engagements  Engagement[]
     accessTokens LinkAccessToken[]

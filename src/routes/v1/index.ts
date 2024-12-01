@@ -3,7 +3,7 @@ import { LinkRoutes } from './link'
 import { APIKeyRoutes } from './api-key'
 
 export const V1Routes = baseElysia({
-	prefix: '',
+	prefix: '/v1',
 	name: 'V1Routes',
 })
 	.use(APIKeyRoutes)

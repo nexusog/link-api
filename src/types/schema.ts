@@ -46,16 +46,6 @@ export const LinkAccessTokenRoleSchema = t.Enum(LinkAccessTokenRole, {
 	description: 'The role of the access token',
 })
 
-export const LinkAccessTokenRoleWithoutOwnerSchema = t.Enum(
-	{
-		[LinkAccessTokenRole.ADMIN]: LinkAccessTokenRole.ADMIN,
-		[LinkAccessTokenRole.VIEWER]: LinkAccessTokenRole.VIEWER,
-	},
-	{
-		description: 'The role of the access token without OWNER',
-	},
-)
-
 export const LinkAccessTokenLabelSchema = t.String({
 	minLength: 1,
 	maxLength: 100,
