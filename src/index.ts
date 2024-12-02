@@ -6,6 +6,7 @@ import { V1Routes } from '@/routes/v1'
 import { t } from 'elysia'
 import cors from '@elysiajs/cors'
 import { compression } from 'elysia-compression'
+import { env } from '@/lib/env'
 
 export const app = baseElysia({
 	precompile: true,
@@ -51,13 +52,6 @@ export const app = baseElysia({
 	)
 
 // Start the server
-const PORT = Bun.env.PORT
-
-if (!PORT) {
-	logger.fatal('PORT is not defined, throwing error')
-	throw new Error('PORT is not defined')
-}
-
-app.listen(PORT, () => {
-	logger.success('Server started on port', PORT)
+app.listen(env.PORT, () => {
+	logger.success('Server started on port', env.PORT)
 })
