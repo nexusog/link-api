@@ -1,10 +1,13 @@
 import db from '@/lib/db'
 import { until } from '@open-draft/until'
 import { LinkAccessTokenRole } from '@prisma/client'
-import { Elysia, error, t } from 'elysia'
+import { Elysia, t } from 'elysia'
 
 export const apiKeyAuthGuardHeadersSchema = t.Object({
-	authorization: t.String(),
+	authorization: t.String({
+		minLength: 7,
+		description: 'Bearer <API_KEY>',
+	}),
 })
 
 export const apiKeyAuthGuard = () =>
@@ -19,6 +22,21 @@ export const apiKeyAuthGuard = () =>
 			async ({
 				headers: { authorization },
 			}): Promise<{ apiKey: string; apiKeyId: string }> => {
+				if (!authorization || !authorization.startsWith('Bearer ')) {
+					throw new Response(
+						JSON.stringify({
+							error: true,
+							message: 'Invalid authorization header format',
+						}),
+						{
+							status: 401,
+							headers: {
+								'Content-Type': 'application/json',
+							},
+						},
+					)
+				}
+
 				const apiKey = authorization.replace('Bearer ', '').trim()
 
 				if (!apiKey) {
@@ -67,6 +85,13 @@ export const apiKeyAuthGuard = () =>
 			},
 		)
 
+export const accessTokenAuthGuardHeadersSchema = t.Object({
+	authorization: t.String({
+		minLength: 7,
+		description: 'Bearer <ACCESS_TOKEN>',
+	}),
+})
+
 export const accessTokenAuthGuard = (
 	allowedRoles: LinkAccessTokenRole[] = [],
 ) =>
@@ -74,7 +99,7 @@ export const accessTokenAuthGuard = (
 		name: 'accessTokenAuthGuard',
 	})
 		.guard({
-			headers: apiKeyAuthGuardHeadersSchema,
+			headers: accessTokenAuthGuardHeadersSchema,
 		})
 		.resolve(
 			{ as: 'scoped' },
@@ -86,6 +111,20 @@ export const accessTokenAuthGuard = (
 				accessTokenId: string
 				role: LinkAccessTokenRole
 			}> => {
+				if (!authorization || !authorization.startsWith('Bearer ')) {
+					throw new Response(
+						JSON.stringify({
+							error: true,
+							message: 'Invalid authorization header format',
+						}),
+						{
+							status: 401,
+							headers: {
+								'Content-Type': 'application/json',
+							},
+						},
+					)
+				}
 				const accessToken = authorization.replace('Bearer ', '').trim()
 
 				if (!accessToken) {

@@ -14,7 +14,10 @@ import {
 	ConstructSuccessResponseSchemaWithData,
 	GeneralErrorResponseSchema,
 } from '@/types/response'
-import { apiKeyAuthGuard } from '@/middlewares/auth'
+import {
+	apiKeyAuthGuard,
+	apiKeyAuthGuardHeadersSchema,
+} from '@/middlewares/auth'
 import { logger } from '@/utils/logger'
 
 export const LinkAccessTokenCreateParamsSchema = t.Object({
@@ -119,5 +122,6 @@ export const LinkAccessTokenCreateRoute = baseElysia()
 				403: GeneralErrorResponseSchema,
 				404: GeneralErrorResponseSchema,
 			},
+			headers: apiKeyAuthGuardHeadersSchema,
 		},
 	)

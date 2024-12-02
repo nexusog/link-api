@@ -1,6 +1,9 @@
 import { baseElysia } from '@/base'
 import db from '@/lib/db'
-import { apiKeyAuthGuard } from '@/middlewares/auth'
+import {
+	apiKeyAuthGuard,
+	apiKeyAuthGuardHeadersSchema,
+} from '@/middlewares/auth'
 import {
 	GeneralErrorResponseSchema,
 	GeneralSuccessResponseSchema,
@@ -62,5 +65,6 @@ export const LinkAccessTokenDeleteRoute = baseElysia()
 				403: GeneralErrorResponseSchema,
 				404: GeneralErrorResponseSchema,
 			},
+			headers: apiKeyAuthGuardHeadersSchema,
 		},
 	)

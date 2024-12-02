@@ -1,4 +1,4 @@
-import { LinkAccessTokenRole } from '@prisma/client'
+import { EngagementType, LinkAccessTokenRole } from '@prisma/client'
 import { t } from 'elysia'
 
 export const ApiKeySchema = t.String({
@@ -21,7 +21,7 @@ export const LinkTitleSchema = t.String({
 
 export const LinkURLSchema = t.String({
 	minLength: 8,
-	maxLength: 100,
+	maxLength: 512,
 	description: 'The URL of the link',
 	format: 'uri',
 })
@@ -55,4 +55,8 @@ export const LinkAccessTokenLabelSchema = t.String({
 export const LinkAccessTokenIdSchema = t.String({
 	minLength: 1,
 	description: 'The ID of the access token',
+})
+
+export const LinkEngagementTypeSchema = t.Enum(EngagementType, {
+	description: 'The type of engagement',
 })

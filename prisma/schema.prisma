@@ -40,7 +40,7 @@ model Link {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    ownerKey   ApiKey? @relation(fields: [ownerKeyId], references: [id])
+    ownerKey   ApiKey? @relation(fields: [ownerKeyId], references: [id], onDelete: Cascade)
     ownerKeyId String?
 
     @@index([id, shortName])
