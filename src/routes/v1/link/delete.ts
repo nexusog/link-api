@@ -88,5 +88,8 @@ export const LinkDeleteRoute = baseElysia()
 				403: GeneralErrorResponseSchema,
 			},
 			headers: apiKeyAuthGuardHeadersSchema,
+			detail: {
+				description: 'Delete a link',
+			},
 		},
 	)

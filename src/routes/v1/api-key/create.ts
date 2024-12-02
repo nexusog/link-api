@@ -55,5 +55,8 @@ export const CreateAPIKeyRoute = baseElysia({
 			),
 			500: GeneralErrorResponseSchema,
 		},
+		detail: {
+			description: 'Generate a new API Key',
+		},
 	},
 )

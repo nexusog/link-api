@@ -109,5 +109,8 @@ export const LinkGetRoute = baseElysia()
 				403: GeneralErrorResponseSchema,
 			},
 			headers: apiKeyAuthGuardHeadersSchema,
+			detail: {
+				description: "Get a link's information",
+			},
 		},
 	)

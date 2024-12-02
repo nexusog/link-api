@@ -73,5 +73,8 @@ export const LinkRedirectRoute = baseElysia().get(
 			500: GeneralErrorResponseSchema,
 			404: GeneralErrorResponseSchema,
 		},
+		detail: {
+			description: 'Redirect to URL of a short link',
+		},
 	},
 )

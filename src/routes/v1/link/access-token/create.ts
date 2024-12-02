@@ -123,5 +123,8 @@ export const LinkAccessTokenCreateRoute = baseElysia()
 				404: GeneralErrorResponseSchema,
 			},
 			headers: apiKeyAuthGuardHeadersSchema,
+			detail: {
+				description: 'Generate a new access token for a link',
+			},
 		},
 	)

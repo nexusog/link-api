@@ -20,20 +20,11 @@ import {
 	apiKeyAuthGuardHeadersSchema,
 } from '@/middlewares/auth'
 
-const LinkCreateBodySchema = t.Object(
-	{
-		title: LinkTitleSchema,
-		url: LinkURLSchema,
-		shortName: t.Optional(LinkShortNameSchema),
-	},
-	{
-		default: {
-			title: 'Google',
-			url: 'https://google.com',
-			shortName: 'google',
-		},
-	},
-)
+const LinkCreateBodySchema = t.Object({
+	title: LinkTitleSchema,
+	url: LinkURLSchema,
+	shortName: t.Optional(LinkShortNameSchema),
+})
 
 export const LinkCreateRoute = baseElysia()
 	.use(apiKeyAuthGuard())
@@ -127,5 +118,8 @@ export const LinkCreateRoute = baseElysia()
 				403: GeneralErrorResponseSchema,
 			},
 			headers: apiKeyAuthGuardHeadersSchema,
+			detail: {
+				description: 'Create a new link',
+			},
 		},
 	)

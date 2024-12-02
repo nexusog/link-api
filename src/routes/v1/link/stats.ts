@@ -170,5 +170,8 @@ export const LinkStatsRoutes = baseElysia()
 				404: GeneralErrorResponseSchema,
 			},
 			headers: accessTokenAuthGuardHeadersSchema,
+			detail: {
+				description: 'Retrieve link engagement stats',
+			},
 		},
 	)

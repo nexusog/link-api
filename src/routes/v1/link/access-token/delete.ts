@@ -66,5 +66,8 @@ export const LinkAccessTokenDeleteRoute = baseElysia()
 				404: GeneralErrorResponseSchema,
 			},
 			headers: apiKeyAuthGuardHeadersSchema,
+			detail: {
+				description: 'Delete an access token',
+			},
 		},
 	)

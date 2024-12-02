@@ -26,6 +26,7 @@ export const LinkURLSchema = t.String({
 	format: 'uri',
 })
 
+// TODO: validation
 export const LinkShortNameSchema = t.String({
 	minLength: 2,
 	maxLength: 100,
