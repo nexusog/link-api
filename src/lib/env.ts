@@ -5,6 +5,7 @@ export const env = createEnv({
 	server: {
 		DATABASE_URL: z.string().url(),
 		PORT: z.string(),
+		CROSS_ORIGINS: z.string().optional().default('*'),
 		LOG_LEVEL: z.number().int().positive().optional().default(999),
 	},
 	isServer: true,

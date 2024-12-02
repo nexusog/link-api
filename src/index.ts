@@ -15,8 +15,10 @@ export const app = baseElysia({
 	.use(compression())
 	.use(
 		cors({
-			// TODO: allow specific
-			origin: '*',
+			origin:
+				env.CROSS_ORIGINS === '*'
+					? '*'
+					: env.CROSS_ORIGINS.split(',').map((e) => e.trim()),
 		}),
 	)
 	.use(
