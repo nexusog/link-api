@@ -1,95 +1,77 @@
 import { baseElysia } from '@/base'
 import db from '@/lib/db'
-import { ipInfoWrapper } from '@/lib/ip'
 import { GeneralErrorResponseSchema } from '@/types/response'
 import { logger } from '@/utils/logger'
 import { until } from '@open-draft/until'
 import { EngagementType } from '@prisma/client'
 import { redirect, t } from 'elysia'
-import { ip } from 'elysia-ip'
 
 const LinkRedirectQuerySchema = t.Object({
-	qr: t.Optional(t.Any()),
-	click: t.Optional(t.Any()),
+	type: t.Optional(t.Enum(EngagementType)),
 })
 
-export const LinkRedirectRoute = baseElysia()
-	.use(ip())
-	.get(
-		'/:id/redirect',
-		async ({ query, params, error: sendError, ip: incomingIp }) => {
-			const { id } = params
-			const { qr, click } = query
+export const LinkRedirectRoute = baseElysia().get(
+	'/:id/redirect',
+	async ({ query, params, error: sendError }) => {
+		const { id } = params
+		const { type } = query
 
-			// get link record
-			const { data: link, error: LinkFetchError } = await until(() =>
-				db.link.findFirst({
-					where: {
-						OR: [
-							{
-								id,
-							},
-							{
-								shortName: id,
-							},
-						],
-					},
-					select: {
-						id: true,
-						url: true,
-					},
-				}),
-			)
-
-			if (LinkFetchError) {
-				logger.error(LinkFetchError)
-				return sendError(500, {
-					error: true,
-					message: 'Database error',
-				})
-			}
-
-			if (!link) {
-				return sendError(404, {
-					error: true,
-					message: 'Link not found',
-				})
-			}
-
-			const { data: ipInfo } = await until(() =>
-				ipInfoWrapper.lookupIp(incomingIp),
-			)
-
-			await until(() =>
-				db.engagement.create({
-					data: {
-						link: {
-							connect: {
-								id: link.id,
-							},
+		// get link record
+		const { data: link, error: LinkFetchError } = await until(() =>
+			db.link.findFirst({
+				where: {
+					OR: [
+						{
+							id,
 						},
+						{
+							shortName: id,
+						},
+					],
+				},
+				select: {
+					id: true,
+					url: true,
+				},
+			}),
+		)
 
-						ip: ipInfo?.ip,
-						originCity: ipInfo?.city,
-						originCountry: ipInfo?.country,
-						originRegion: ipInfo?.region,
-						engagementType: qr
-							? EngagementType.QR
-							: click
-								? EngagementType.CLICK
-								: EngagementType.UNKNOWN,
+		if (LinkFetchError) {
+			logger.error(LinkFetchError)
+			return sendError(500, {
+				error: true,
+				message: 'Database error',
+			})
+		}
+
+		if (!link) {
+			return sendError(404, {
+				error: true,
+				message: 'Link not found',
+			})
+		}
+
+		await until(() =>
+			db.engagement.create({
+				data: {
+					link: {
+						connect: {
+							id: link.id,
+						},
 					},
-				}),
-			)
+					engagementType: type,
+				},
+			}),
+		)
 
-			return redirect(link.url, 307)
+		return redirect(link.url, 307)
+	},
+	{
+		query: LinkRedirectQuerySchema,
+		response: {
+			307: t.Object({}),
+			500: GeneralErrorResponseSchema,
+			404: GeneralErrorResponseSchema,
 		},
-		{
-			query: LinkRedirectQuerySchema,
-			response: {
-				307: t.Object({}),
-				500: GeneralErrorResponseSchema,
-				404: GeneralErrorResponseSchema,
-			},
-		},
-	)
+	},
+)

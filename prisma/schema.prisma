@@ -13,19 +13,35 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+model ApiKey {
+    id String @id @default(cuid())
+
+    key   String @unique
+    label String
+
+    createdAt DateTime @default(now())
+
+    links Link[]
+
+    @@index([id, key])
+}
+
 model Link {
     id String @id
 
     title String
     url   String
 
-    shortName String? @unique
+    shortName String?
 
     engagements  Engagement[]
     accessTokens LinkAccessToken[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    ownerKey   ApiKey? @relation(fields: [ownerKeyId], references: [id], onDelete: Cascade)
+    ownerKeyId String?
 
     @@index([id, shortName])
 }
@@ -49,12 +65,6 @@ model LinkAccessToken {
 model Engagement {
     id String @id @default(cuid())
 
-    ip            String?
-    userAgent     String?
-    originCountry String?
-    originCity    String?
-    originRegion  String?
-
     engagementType EngagementType @default(UNKNOWN)
 
     link   Link   @relation(fields: [linkId], references: [id], onDelete: Cascade)
@@ -70,7 +80,5 @@ enum EngagementType {
 }
 
 enum LinkAccessTokenRole {
-    OWNER
-    ADMIN
     VIEWER
 }
