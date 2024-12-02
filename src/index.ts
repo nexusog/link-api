@@ -5,11 +5,13 @@ import { logger } from '@/utils/logger'
 import { V1Routes } from '@/routes/v1'
 import { t } from 'elysia'
 import cors from '@elysiajs/cors'
+import { compression } from 'elysia-compression'
 
 export const app = baseElysia({
 	precompile: true,
 	name: 'root',
 })
+	.use(compression())
 	.use(
 		cors({
 			// TODO: allow specific
