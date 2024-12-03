@@ -4,6 +4,8 @@ import {
 	GeneralErrorResponseSchema,
 } from '@/types/response'
 import {
+	LinkAccessTokenIdSchema,
+	LinkAccessTokenRoleSchema,
 	LinkAccessTokenSchema,
 	LinkIdSchema,
 	LinkShortNameSchema,
@@ -19,11 +21,23 @@ import {
 	apiKeyAuthGuard,
 	apiKeyAuthGuardHeadersSchema,
 } from '@/middlewares/auth'
+import NexusCrypto from '@nexusog/crypto'
+import { LinkAccessTokenRole } from '@prisma/client'
 
 const LinkCreateBodySchema = t.Object({
 	title: LinkTitleSchema,
 	url: LinkURLSchema,
 	shortName: t.Optional(LinkShortNameSchema),
+	createAccessToken: t.Optional(
+		t.Boolean({
+			default: false,
+		}),
+	),
+	accessToken: t.Optional(
+		t.Object({
+			role: t.Optional(LinkAccessTokenRoleSchema),
+		}),
+	),
 })
 
 export const LinkCreateRoute = baseElysia()
@@ -31,7 +45,13 @@ export const LinkCreateRoute = baseElysia()
 	.post(
 		'',
 		async ({ body, error: sendError, apiKeyId }) => {
-			const { title, url, shortName } = body
+			const {
+				title,
+				url,
+				shortName,
+				accessToken: bodyAccessToken,
+				createAccessToken,
+			} = body
 
 			// check if short name is taken
 			if (shortName) {
@@ -97,12 +117,57 @@ export const LinkCreateRoute = baseElysia()
 				})
 			}
 
+			// if createAccessToken is true, create access token
+			const accessToken = NexusCrypto.utils.getRandomHex(32)
+			let accessTokenId: string
+			if (createAccessToken) {
+				const {
+					data: accessTokenRecord,
+					error: CreateAccessTokenError,
+				} = await until(() =>
+					db.linkAccessToken.create({
+						data: {
+							label: 'default',
+							token: accessToken,
+							role:
+								bodyAccessToken?.role ||
+								LinkAccessTokenRole.VIEWER,
+							link: {
+								connect: { id },
+							},
+						},
+						select: {
+							id: true,
+							token: true,
+						},
+					}),
+				)
+
+				if (CreateAccessTokenError) {
+					logger.error(CreateAccessTokenError)
+					return sendError(500, {
+						error: true,
+						message: 'Failed to create access token',
+					})
+				}
+
+				accessTokenId = accessTokenRecord.id
+			}
+
 			return {
 				error: false,
 				message: 'Link created',
-				data: {
-					id,
-				},
+				data: Object.assign(
+					{
+						id,
+					},
+					createAccessToken && {
+						accessToken: {
+							token: accessToken,
+							id: accessTokenId!,
+						},
+					},
+				),
 			}
 		},
 		{
@@ -111,6 +176,12 @@ export const LinkCreateRoute = baseElysia()
 				200: ConstructSuccessResponseSchemaWithData(
 					t.Object({
 						id: LinkIdSchema,
+						accessToken: t.Optional(
+							t.Object({
+								token: LinkAccessTokenSchema,
+								id: LinkAccessTokenIdSchema,
+							}),
+						),
 					}),
 				),
 				500: GeneralErrorResponseSchema,

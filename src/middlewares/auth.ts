@@ -54,7 +54,7 @@ export const apiKeyAuthGuard = () =>
 					)
 				}
 
-				const { data: apiKeyRecord, error: apiKeyError } = await until(
+				const { data: apiKeyRecord, error: ApiKeyError } = await until(
 					() =>
 						db.apiKey.findUniqueOrThrow({
 							where: {
@@ -66,7 +66,7 @@ export const apiKeyAuthGuard = () =>
 						}),
 				)
 
-				if (apiKeyError) {
+				if (ApiKeyError) {
 					throw new Response(
 						JSON.stringify({
 							error: true,
