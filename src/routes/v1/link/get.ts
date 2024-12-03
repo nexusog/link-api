@@ -19,17 +19,12 @@ import { logger } from '@/utils/logger'
 import { until } from '@open-draft/until'
 import { t } from 'elysia'
 
-const LinkGetQuerySchema = t.Object({
-	token: LinkAccessTokenSchema,
-})
-
 export const LinkGetRoute = baseElysia()
 	.use(apiKeyAuthGuard())
 	.get(
 		'/:id',
-		async ({ query, params, error: sendError, apiKeyId }) => {
+		async ({ params, error: sendError, apiKeyId }) => {
 			const { id } = params
-			const { token } = query
 
 			// get link record
 			const { data: link, error: LinkFetchError } = await until(() =>
@@ -69,15 +64,6 @@ export const LinkGetRoute = baseElysia()
 				})
 			}
 
-			const accessToken = link.accessTokens.find((e) => e.token === token)
-
-			if (!accessToken) {
-				return sendError(403, {
-					error: true,
-					message: 'Forbidden',
-				})
-			}
-
 			return {
 				error: false,
 				message: 'Link found',
@@ -92,7 +78,6 @@ export const LinkGetRoute = baseElysia()
 			}
 		},
 		{
-			query: LinkGetQuerySchema,
 			response: {
 				200: ConstructSuccessResponseSchemaWithData(
 					t.Object({
