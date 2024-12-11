@@ -9,6 +9,7 @@ import {
 	ApiKeyIdSchema,
 	ApiKeyLabelSchema,
 	ApiKeyPermissionsSchema,
+	ApiKeySchema,
 } from '@/types/schemas/api-key'
 import { generateApiKey, generateApiKeyId } from '@/utils/generator'
 import { logger } from '@/utils/logger'
@@ -31,10 +32,9 @@ export const ApiKeyCreateRoute = baseElysia()
 				await until(async () => generateApiKeyId())
 
 			if (ApiKeyIdGenerateError) {
-				return error(500, {
-					error: true,
-					message: 'Failed to generate API key ID',
-				})
+				logger.fatal('Failed to generate API Key ID')
+				logger.fatal(ApiKeyIdGenerateError)
+				process.exit(1)
 			}
 
 			const { data: apiKey, error: ApiKeyGenerateError } = await until(
@@ -42,10 +42,9 @@ export const ApiKeyCreateRoute = baseElysia()
 			)
 
 			if (ApiKeyGenerateError) {
-				return error(500, {
-					error: true,
-					message: 'Failed to generate API key',
-				})
+				logger.fatal('Failed to generate API Key')
+				logger.fatal(ApiKeyGenerateError)
+				process.exit(1)
 			}
 
 			// TODO: check for api key id
@@ -78,7 +77,7 @@ export const ApiKeyCreateRoute = baseElysia()
 
 			return {
 				error: false,
-				message: '',
+				message: 'Api Key created',
 				data: {
 					id: apiKeyId,
 					key: apiKey,
@@ -91,6 +90,7 @@ export const ApiKeyCreateRoute = baseElysia()
 				200: ConstructSuccessResponseSchemaWithData(
 					t.Object({
 						id: ApiKeyIdSchema,
+						key: ApiKeySchema,
 					}),
 				),
 				500: GeneralErrorResponseSchema,

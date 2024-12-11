@@ -39,6 +39,14 @@ export const env = createEnv({
 			.positive()
 			.optional()
 			.default(32),
+
+		LINK_ID_PREFIX: z.string().optional().default(''),
+		LINK_ID_BYTES: z.coerce.number().int().positive().optional().default(4),
+
+		LINK_SHORT_NAME_ALLOWED_SYMBOLIC_CHARACTERS: z
+			.string()
+			.optional()
+			.default('-_'),
 	},
 	isServer: true,
 	runtimeEnv: Bun.env,

@@ -21,5 +21,5 @@ export const ApiKeyIdSchema = t.String({
 export const ApiKeySchema = t.String({
 	minLength: 1,
 	description: 'The API key',
-	pattern: `${env.API_KEY_BYTES}[0-9a-f]`,
+	pattern: `${env.API_KEY_PREFIX}[0-9a-f]`,
 })

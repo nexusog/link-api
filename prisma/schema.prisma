@@ -17,7 +17,7 @@ model Workspace {
     id String @id @default(cuid())
 
     name   String
-    secret String
+    secret String @unique
 
     links   Link[]
     apiKeys ApiKey[]
@@ -34,12 +34,12 @@ model ApiKey {
 
     permissions ApiKeyPermission[]
 
-    workspace   Workspace @relation(fields: [workspaceId], references: [id])
+    workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId String
 
     createdAt DateTime @default(now())
 
-    @@index([id, key])
+    @@index([id])
 }
 
 model Link {
@@ -48,11 +48,11 @@ model Link {
     title String
     url   String
 
-    shortName String?
+    shortName String? @unique
 
     engagements Engagement[]
 
-    workspace   Workspace @relation(fields: [workspaceId], references: [id])
+    workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId String
 
     createdAt DateTime @default(now())
