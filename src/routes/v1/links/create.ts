@@ -11,6 +11,7 @@ import {
 	LinkTitleSchema,
 	LinkURLSchema,
 } from '@/types/schemas/link'
+import { ApiKeyAuthorizationHeaders } from '@/types/schemas/middleware'
 import { generateLinkId } from '@/utils/generator'
 import { logger } from '@/utils/logger'
 import { until } from '@open-draft/until'
@@ -128,5 +129,6 @@ export const LinkCreateRoute = baseElysia()
 				500: GeneralErrorResponseSchema,
 				409: GeneralErrorResponseSchema,
 			},
+			headers: ApiKeyAuthorizationHeaders,
 		},
 	)

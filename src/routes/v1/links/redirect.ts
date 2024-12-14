@@ -1,13 +1,13 @@
 import { baseElysia } from '@/base'
 import db from '@/lib/db'
 import { GeneralErrorResponseSchema } from '@/types/response'
-import { LinkEngagementSchema } from '@/types/schemas/link'
+import { LinkEngagementTypeSchema } from '@/types/schemas/link'
 import { logger } from '@/utils/logger'
 import { until } from '@open-draft/until'
 import { redirect, t } from 'elysia'
 
 const LinkRedirectQuerySchema = t.Object({
-	type: t.Optional(LinkEngagementSchema),
+	type: t.Optional(LinkEngagementTypeSchema),
 })
 
 export const LinkRedirectRoute = baseElysia().get(

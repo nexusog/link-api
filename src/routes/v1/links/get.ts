@@ -11,6 +11,7 @@ import {
 	LinkTitleSchema,
 	LinkURLSchema,
 } from '@/types/schemas/link'
+import { ApiKeyAuthorizationHeaders } from '@/types/schemas/middleware'
 import { logger } from '@/utils/logger'
 import { until } from '@open-draft/until'
 import { ApiKeyPermission } from '@prisma/client'
@@ -85,5 +86,6 @@ export const LinkGetRoute = baseElysia()
 				500: GeneralErrorResponseSchema,
 				404: GeneralErrorResponseSchema,
 			},
+			headers: ApiKeyAuthorizationHeaders,
 		},
 	)

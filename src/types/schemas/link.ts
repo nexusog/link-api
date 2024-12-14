@@ -28,4 +28,4 @@ export const LinkShortNameSchema = t.String({
 	pattern: `^[a-zA-Z0-9${env.LINK_SHORT_NAME_ALLOWED_SYMBOLIC_CHARACTERS}]*$`,
 })
 
-export const LinkEngagementSchema = t.Enum(EngagementType)
+export const LinkEngagementTypeSchema = t.Enum(EngagementType)
