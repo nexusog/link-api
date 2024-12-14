@@ -24,7 +24,7 @@ export const env = createEnv({
 			.optional()
 			.default(32),
 
-		API_KEY_ID_PREFIX: z.string().optional().default('key_'),
+		API_KEY_ID_PREFIX: z.string().optional().default(''),
 		API_KEY_PREFIX: z.string().optional().default('key_'),
 
 		API_KEY_ID_BYTES: z.coerce
