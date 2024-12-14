@@ -1,21 +1,15 @@
 import { baseElysia } from '@/base'
 import db from '@/lib/db'
-import {
-	accessTokenAuthGuard,
-	accessTokenAuthGuardHeadersSchema,
-} from '@/middlewares/auth'
+import { apiKeyAuthorizationMiddleware } from '@/middlewares/auth'
 import {
 	ConstructSuccessResponseSchemaWithData,
 	GeneralErrorResponseSchema,
 } from '@/types/response'
-import {
-	LinkEngagementTypeSchema,
-	LinkIdSchema,
-	LinkURLSchema,
-} from '@/types/schema'
+import { LinkEngagementTypeSchema, LinkIdSchema } from '@/types/schemas/link'
+import { ApiKeyAuthorizationHeaders } from '@/types/schemas/middleware'
 import { logger } from '@/utils/logger'
 import { until } from '@open-draft/until'
-import { EngagementType } from '@prisma/client'
+import { ApiKeyPermission, EngagementType } from '@prisma/client'
 import { t } from 'elysia'
 import moment from 'moment'
 
@@ -32,11 +26,11 @@ export const LinkStatsQuerySchema = t.Object({
 	),
 })
 
-export const LinkStatsRoutes = baseElysia()
-	.use(accessTokenAuthGuard())
+export const LinkStatsRoute = baseElysia()
+	.use(apiKeyAuthorizationMiddleware([ApiKeyPermission.ENGAGEMENT_READ]))
 	.get(
 		'/:id/stats',
-		async ({ accessTokenId, query, params, error: sendError }) => {
+		async ({ params, error, query }) => {
 			const { id } = params
 
 			// Default duration of 1 month
@@ -55,7 +49,7 @@ export const LinkStatsRoutes = baseElysia()
 
 			// Validate parsed dates
 			if (!sinceParsed.isValid() || !untilParsed.isValid()) {
-				return sendError(400, {
+				return error(400, {
 					error: true,
 					message: "Invalid 'since' or 'until' date provided",
 				})
@@ -63,7 +57,7 @@ export const LinkStatsRoutes = baseElysia()
 
 			// Ensure the difference is less than 1 month
 			if (untilParsed.diff(sinceParsed, 'months', true) > 1) {
-				return sendError(400, {
+				return error(400, {
 					error: true,
 					message:
 						"The difference between 'since' and 'until' must be less than 1 month",
@@ -82,11 +76,6 @@ export const LinkStatsRoutes = baseElysia()
 								shortName: id,
 							},
 						],
-						accessTokens: {
-							some: {
-								id: accessTokenId,
-							},
-						},
 					},
 					select: {
 						id: true,
@@ -110,14 +99,14 @@ export const LinkStatsRoutes = baseElysia()
 
 			if (LinkFetchError) {
 				logger.error(LinkFetchError)
-				return sendError(500, {
+				return error(500, {
 					error: true,
 					message: 'Database error',
 				})
 			}
 
 			if (!link) {
-				return sendError(404, {
+				return error(404, {
 					error: true,
 					message: 'Link not found',
 				})
@@ -169,9 +158,6 @@ export const LinkStatsRoutes = baseElysia()
 				400: GeneralErrorResponseSchema,
 				404: GeneralErrorResponseSchema,
 			},
-			headers: accessTokenAuthGuardHeadersSchema,
-			detail: {
-				description: 'Retrieve link engagement stats',
-			},
+			headers: ApiKeyAuthorizationHeaders,
 		},
 	)

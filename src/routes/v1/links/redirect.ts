@@ -1,13 +1,13 @@
 import { baseElysia } from '@/base'
 import db from '@/lib/db'
 import { GeneralErrorResponseSchema } from '@/types/response'
+import { LinkEngagementTypeSchema } from '@/types/schemas/link'
 import { logger } from '@/utils/logger'
 import { until } from '@open-draft/until'
-import { EngagementType } from '@prisma/client'
 import { redirect, t } from 'elysia'
 
 const LinkRedirectQuerySchema = t.Object({
-	type: t.Optional(t.Enum(EngagementType)),
+	type: t.Optional(LinkEngagementTypeSchema),
 })
 
 export const LinkRedirectRoute = baseElysia().get(
@@ -51,7 +51,7 @@ export const LinkRedirectRoute = baseElysia().get(
 			})
 		}
 
-		await until(() =>
+		until(() =>
 			db.engagement.create({
 				data: {
 					link: {
@@ -61,8 +61,18 @@ export const LinkRedirectRoute = baseElysia().get(
 					},
 					engagementType: type,
 				},
+				select: {
+					id: true,
+				},
 			}),
-		)
+		).then(({ error: LinkEngagementCreateError }) => {
+			if (LinkEngagementCreateError) {
+				logger.fail(
+					`Failed to create link engagement (ID: ${link.id}, Type: ${type})`,
+					LinkEngagementCreateError,
+				)
+			}
+		})
 
 		return redirect(link.url, 307)
 	},

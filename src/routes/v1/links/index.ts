@@ -1,18 +1,15 @@
 import { baseElysia } from '@/base'
 import { LinkCreateRoute } from './create'
-import { LinkGetRoute } from './get'
 import { LinkRedirectRoute } from './redirect'
-import { LinkAccessTokenRoutes } from './access-token'
+import { LinkGetRoute } from './get'
+import { LinkStatsRoute } from './stats'
 import { LinkDeleteRoute } from './delete'
-import { LinkStatsRoutes } from './stats'
 
-export const LinkRoutes = baseElysia({
-	prefix: '/link',
-	name: 'LinkRoutes',
+export const LinksRoutes = baseElysia({
+	prefix: '/links',
 })
 	.use(LinkCreateRoute)
 	.use(LinkGetRoute)
 	.use(LinkRedirectRoute)
-	.use(LinkStatsRoutes)
+	.use(LinkStatsRoute)
 	.use(LinkDeleteRoute)
-	.use(LinkAccessTokenRoutes)

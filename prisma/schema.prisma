@@ -13,17 +13,33 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+model Workspace {
+    id String @id @default(cuid())
+
+    name   String
+    secret String @unique
+
+    links   Link[]
+    apiKeys ApiKey[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
 model ApiKey {
     id String @id @default(cuid())
 
     key   String @unique
     label String
 
+    permissions ApiKeyPermission[]
+
+    workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    workspaceId String
+
     createdAt DateTime @default(now())
 
-    links Link[]
-
-    @@index([id, key])
+    @@index([id])
 }
 
 model Link {
@@ -32,34 +48,17 @@ model Link {
     title String
     url   String
 
-    shortName String?
+    shortName String? @unique
 
-    engagements  Engagement[]
-    accessTokens LinkAccessToken[]
+    engagements Engagement[]
+
+    workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    workspaceId String
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-
-    ownerKey   ApiKey? @relation(fields: [ownerKeyId], references: [id], onDelete: Cascade)
-    ownerKeyId String?
 
     @@index([id, shortName])
-}
-
-model LinkAccessToken {
-    id String @id @default(cuid())
-
-    label String
-
-    token String @unique
-
-    link   Link   @relation(fields: [linkId], references: [id], onDelete: Cascade)
-    linkId String
-
-    role LinkAccessTokenRole @default(VIEWER)
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
 }
 
 model Engagement {
@@ -79,6 +78,8 @@ enum EngagementType {
     UNKNOWN
 }
 
-enum LinkAccessTokenRole {
-    VIEWER
+enum ApiKeyPermission {
+    LINK_READ
+    LINK_WRITE
+    ENGAGEMENT_READ
 }

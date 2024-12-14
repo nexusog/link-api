@@ -1,203 +1,172 @@
 import db from '@/lib/db'
 import { until } from '@open-draft/until'
-import { LinkAccessTokenRole } from '@prisma/client'
 import { Elysia, t } from 'elysia'
+import { logger } from '@/utils/logger'
+import {
+	ApiKeyAuthorizationHeaders,
+	WorkspaceAuthorizationHeaders,
+} from '@/types/schemas/middleware'
+import { ApiKeyPermission } from '@prisma/client'
 
-export const apiKeyAuthGuardHeadersSchema = t.Object({
-	authorization: t.String({
-		minLength: 7,
-		description: 'Bearer <API_KEY>',
-	}),
+export const workspaceAuthorizationMiddleware = new Elysia({
+	name: 'WorkspaceAuthorizationMiddleware',
 })
-
-export const apiKeyAuthGuard = () =>
-	new Elysia({
-		name: 'authGuard',
+	.guard({
+		headers: WorkspaceAuthorizationHeaders,
 	})
-		.guard({
-			headers: apiKeyAuthGuardHeadersSchema,
-		})
-		.resolve(
-			{ as: 'scoped' },
-			async ({
-				headers: { authorization },
-			}): Promise<{ apiKey: string; apiKeyId: string }> => {
-				if (!authorization || !authorization.startsWith('Bearer ')) {
-					throw new Response(
-						JSON.stringify({
-							error: true,
-							message: 'Invalid authorization header format',
-						}),
-						{
-							status: 401,
-							headers: {
-								'Content-Type': 'application/json',
-							},
-						},
-					)
-				}
+	.resolve(async ({ headers }) => {
+		const {
+			'x-workspace-id': workspaceId,
+			'x-workspace-secret': workspaceSecret,
+		} = headers
 
-				const apiKey = authorization.replace('Bearer ', '').trim()
-
-				if (!apiKey) {
-					throw new Response(
-						JSON.stringify({
-							error: true,
-							message: 'No API key provided',
-						}),
-						{
-							status: 401,
-							headers: {
-								'Content-Type': 'application/json',
-							},
-						},
-					)
-				}
-
-				const { data: apiKeyRecord, error: ApiKeyError } = await until(
-					() =>
-						db.apiKey.findUniqueOrThrow({
-							where: {
-								key: apiKey,
-							},
-							select: {
-								id: true,
-							},
-						}),
-				)
-
-				if (ApiKeyError) {
-					throw new Response(
-						JSON.stringify({
-							error: true,
-							message: 'Invalid API key',
-						}),
-						{
-							status: 401,
-							headers: {
-								'Content-Type': 'application/json',
-							},
-						},
-					)
-				}
-
-				return { apiKey, apiKeyId: apiKeyRecord.id }
-			},
+		const { data: workspace, error: WorkspaceFindError } = await until(
+			async () =>
+				db.workspace.findUnique({
+					where: {
+						id: workspaceId,
+						secret: workspaceSecret,
+					},
+					select: {
+						id: true,
+						secret: true,
+					},
+				}),
 		)
 
-export const accessTokenAuthGuardHeadersSchema = t.Object({
-	authorization: t.String({
-		minLength: 7,
-		description: 'Bearer <ACCESS_TOKEN>',
-	}),
-})
+		if (WorkspaceFindError) {
+			logger.fail('Failed to find workspace', WorkspaceFindError)
+			throw new Response(
+				JSON.stringify({
+					error: true,
+					message: 'Failed to find workspace',
+				}),
+				{
+					status: 401,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				},
+			)
+		}
 
-export const accessTokenAuthGuard = (
-	allowedRoles: LinkAccessTokenRole[] = [],
-) =>
-	new Elysia({
-		name: 'accessTokenAuthGuard',
+		if (!workspace) {
+			throw new Response(
+				JSON.stringify({
+					error: true,
+					message: 'Unauthorized',
+				}),
+				{
+					status: 401,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				},
+			)
+		}
+
+		return {
+			workspaceId: workspace.id,
+			workspaceSecret: workspace.secret,
+		}
+	})
+	.as('plugin')
+
+export const apiKeyAuthorizationMiddleware = (
+	permissions: ApiKeyPermission[],
+) => {
+	return new Elysia({
+		name: 'ApiKeyAuthorizationMiddleware',
 	})
 		.guard({
-			headers: accessTokenAuthGuardHeadersSchema,
+			headers: ApiKeyAuthorizationHeaders,
 		})
-		.resolve(
-			{ as: 'scoped' },
-			async ({
-				headers: { authorization },
-			}): Promise<{
-				accessToken: string
-				linkId: string
-				accessTokenId: string
-				role: LinkAccessTokenRole
-			}> => {
-				if (!authorization || !authorization.startsWith('Bearer ')) {
-					throw new Response(
-						JSON.stringify({
-							error: true,
-							message: 'Invalid authorization header format',
-						}),
-						{
-							status: 401,
-							headers: {
-								'Content-Type': 'application/json',
+		.resolve(async ({ headers }) => {
+			const { 'x-workspace-id': workspaceId, 'x-api-key': apiKey } =
+				headers
+
+			const { data: apiKeyById, error: ApiKeyFindError } = await until(
+				async () =>
+					db.apiKey.findUnique({
+						where: {
+							key: apiKey,
+							workspace: {
+								id: workspaceId,
 							},
 						},
-					)
-				}
-				const accessToken = authorization.replace('Bearer ', '').trim()
-
-				if (!accessToken) {
-					throw new Response(
-						JSON.stringify({
-							error: true,
-							message: 'No access token provided',
-						}),
-						{
-							status: 401,
-							headers: {
-								'Content-Type': 'application/json',
-							},
-						},
-					)
-				}
-
-				const { data: accessTokenRecord, error: accessTokenError } =
-					await until(() =>
-						db.linkAccessToken.findUniqueOrThrow({
-							where: {
-								token: accessToken,
-							},
-							select: {
-								id: true,
-								role: true,
-								link: {
-									select: {
-										id: true,
-									},
+						select: {
+							id: true,
+							key: true,
+							permissions: true,
+							workspace: {
+								select: {
+									id: true,
+									secret: true,
 								},
 							},
-						}),
-					)
-
-				if (accessTokenError) {
-					throw new Response(
-						JSON.stringify({
-							error: true,
-							message: 'Invalid access token',
-						}),
-						{
-							status: 401,
-							headers: {
-								'Content-Type': 'application/json',
-							},
 						},
-					)
-				}
+					}),
+			)
 
-				if (
-					allowedRoles.length > 0 &&
-					allowedRoles.includes(accessTokenRecord.role) === false
-				) {
-					throw new Response(
-						JSON.stringify({
-							error: true,
-							message: 'Forbidden',
-						}),
-						{
-							status: 403,
-							headers: {
-								'Content-Type': 'application/json',
-							},
+			if (ApiKeyFindError) {
+				logger.fail('Failed to find api key', ApiKeyFindError)
+				throw new Response(
+					JSON.stringify({
+						error: true,
+						message: 'Failed to find api key',
+					}),
+					{
+						status: 401,
+						headers: {
+							'Content-Type': 'application/json',
 						},
-					)
-				}
+					},
+				)
+			}
 
-				return {
-					accessToken,
-					role: accessTokenRecord.role,
-					linkId: accessTokenRecord.link.id,
-					accessTokenId: accessTokenRecord.id,
-				}
-			},
-		)
+			if (!apiKeyById) {
+				logger.info(
+					`Unauthorized (Workspace ID: ${workspaceId}, Api Key: ${apiKey.slice(0, 12)}...)`,
+				)
+				throw new Response(
+					JSON.stringify({
+						error: true,
+						message: 'Unauthorized',
+					}),
+					{
+						status: 401,
+						headers: {
+							'Content-Type': 'application/json',
+						},
+					},
+				)
+			}
+
+			if (
+				apiKeyById.permissions.some((permission) =>
+					permissions.includes(permission),
+				) === false
+			) {
+				throw new Response(
+					JSON.stringify({
+						error: true,
+						message: 'Unauthorized (Insufficient Permissions)',
+					}),
+					{
+						status: 401,
+						headers: {
+							'Content-Type': 'application/json',
+						},
+					},
+				)
+			}
+
+			return {
+				apiKeyId: apiKeyById.id,
+				apiKeyKey: apiKeyById.key,
+				workspaceId: apiKeyById.workspace.id,
+				workspaceSecret: apiKeyById.workspace.secret,
+			}
+		})
+		.as('plugin')
+}

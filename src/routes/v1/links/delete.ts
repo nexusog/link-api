@@ -1,21 +1,20 @@
 import { baseElysia } from '@/base'
 import db from '@/lib/db'
-import {
-	apiKeyAuthGuard,
-	apiKeyAuthGuardHeadersSchema,
-} from '@/middlewares/auth'
+import { apiKeyAuthorizationMiddleware } from '@/middlewares/auth'
 import {
 	GeneralErrorResponseSchema,
 	GeneralSuccessResponseSchema,
 } from '@/types/response'
+import { ApiKeyAuthorizationHeaders } from '@/types/schemas/middleware'
 import { logger } from '@/utils/logger'
 import { until } from '@open-draft/until'
+import { ApiKeyPermission } from '@prisma/client'
 
 export const LinkDeleteRoute = baseElysia()
-	.use(apiKeyAuthGuard())
+	.use(apiKeyAuthorizationMiddleware([ApiKeyPermission.LINK_WRITE]))
 	.delete(
 		'/:id',
-		async ({ params, body, error: sendError, apiKeyId }) => {
+		async ({ params, error }) => {
 			const { id } = params
 
 			// get link record
@@ -30,46 +29,40 @@ export const LinkDeleteRoute = baseElysia()
 								shortName: id,
 							},
 						],
-						ownerKey: {
-							id: apiKeyId,
-						},
 					},
 					select: {
 						id: true,
+						url: true,
 					},
 				}),
 			)
 
 			if (LinkFetchError) {
 				logger.error(LinkFetchError)
-				return sendError(500, {
+				return error(500, {
 					error: true,
-					message: 'Failed to fetch link',
+					message: 'Database error',
 				})
 			}
 
 			if (!link) {
-				return sendError(404, {
+				return error(404, {
 					error: true,
 					message: 'Link not found',
 				})
 			}
 
-			// delete link
-			const { error: DeleteLinkError } = await until(() =>
+			const { error: LinkDeleteError } = await until(() =>
 				db.link.delete({
 					where: {
 						id: link.id,
-						ownerKey: {
-							id: apiKeyId,
-						},
 					},
 				}),
 			)
 
-			if (DeleteLinkError) {
-				logger.error(DeleteLinkError)
-				return sendError(500, {
+			if (LinkDeleteError) {
+				logger.fail('Failed to delete link', LinkDeleteError)
+				return error(500, {
 					error: true,
 					message: 'Failed to delete link',
 				})
@@ -81,15 +74,11 @@ export const LinkDeleteRoute = baseElysia()
 			}
 		},
 		{
+			headers: ApiKeyAuthorizationHeaders,
 			response: {
 				200: GeneralSuccessResponseSchema,
-				500: GeneralErrorResponseSchema,
 				404: GeneralErrorResponseSchema,
-				403: GeneralErrorResponseSchema,
-			},
-			headers: apiKeyAuthGuardHeadersSchema,
-			detail: {
-				description: 'Delete a link',
+				500: GeneralErrorResponseSchema,
 			},
 		},
 	)
