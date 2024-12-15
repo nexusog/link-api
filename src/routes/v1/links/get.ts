@@ -20,6 +20,60 @@ import { t } from 'elysia'
 export const LinkGetRoute = baseElysia()
 	.use(apiKeyAuthorizationMiddleware([ApiKeyPermission.LINK_READ]))
 	.get(
+		'',
+		async ({ error, workspaceId }) => {
+			const { error: LinkFetchError, data: links } = await until(() =>
+				db.link.findMany({
+					where: {
+						workspaceId: workspaceId,
+					},
+					select: {
+						id: true,
+						shortName: true,
+						title: true,
+						url: true,
+						createdAt: true,
+						updatedAt: true,
+					},
+				}),
+			)
+
+			if (LinkFetchError) {
+				logger.fail('Failed to fetch links')
+				logger.fail(LinkFetchError)
+				return error(500, {
+					error: true,
+					message: 'Failed to fetch links',
+				})
+			}
+
+			return {
+				error: false,
+				message: 'Links found',
+				data: links,
+			}
+		},
+		{
+			response: {
+				200: ConstructSuccessResponseSchemaWithData(
+					t.Array(
+						t.Object({
+							id: LinkIdSchema,
+							shortName: t.Nullable(LinkShortNameSchema),
+							title: LinkTitleSchema,
+							url: LinkURLSchema,
+							createdAt: t.Date(),
+							updatedAt: t.Date(),
+						}),
+					),
+				),
+				400: GeneralErrorResponseSchema,
+				500: GeneralErrorResponseSchema,
+			},
+			headers: ApiKeyAuthorizationHeaders,
+		},
+	)
+	.get(
 		'/:id',
 		async ({ params, error }) => {
 			const { id } = params
