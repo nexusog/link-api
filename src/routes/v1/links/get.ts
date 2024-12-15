@@ -21,11 +21,13 @@ export const LinkGetRoute = baseElysia()
 	.use(apiKeyAuthorizationMiddleware([ApiKeyPermission.LINK_READ]))
 	.get(
 		'',
-		async ({ error, workspaceId }) => {
+		async ({ error, workspaceId, query }) => {
+			const { cursor, limit = 10 } = query
+
 			const { error: LinkFetchError, data: links } = await until(() =>
 				db.link.findMany({
 					where: {
-						workspaceId: workspaceId,
+						workspaceId,
 					},
 					select: {
 						id: true,
@@ -35,6 +37,15 @@ export const LinkGetRoute = baseElysia()
 						createdAt: true,
 						updatedAt: true,
 					},
+					orderBy: {
+						updatedAt: 'desc',
+					},
+					take: limit + 1,
+					cursor: cursor
+						? {
+								id: cursor,
+							}
+						: undefined,
 				}),
 			)
 
@@ -50,22 +61,38 @@ export const LinkGetRoute = baseElysia()
 			return {
 				error: false,
 				message: 'Links found',
-				data: links,
+				data: {
+					links: links.slice(0, limit),
+					nextCursor: links.length > limit ? links[limit].id : null,
+				},
 			}
 		},
 		{
+			query: t.Object({
+				cursor: t.Optional(t.String()),
+				limit: t.Optional(
+					t.Number({
+						default: 10,
+						maximum: 50,
+						minimum: 1,
+					}),
+				),
+			}),
 			response: {
 				200: ConstructSuccessResponseSchemaWithData(
-					t.Array(
-						t.Object({
-							id: LinkIdSchema,
-							shortName: t.Nullable(LinkShortNameSchema),
-							title: LinkTitleSchema,
-							url: LinkURLSchema,
-							createdAt: t.Date(),
-							updatedAt: t.Date(),
-						}),
-					),
+					t.Object({
+						links: t.Array(
+							t.Object({
+								id: LinkIdSchema,
+								shortName: t.Nullable(LinkShortNameSchema),
+								title: LinkTitleSchema,
+								url: LinkURLSchema,
+								createdAt: t.Date(),
+								updatedAt: t.Date(),
+							}),
+						),
+						nextCursor: t.Nullable(t.String()),
+					}),
 				),
 				400: GeneralErrorResponseSchema,
 				500: GeneralErrorResponseSchema,
