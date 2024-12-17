@@ -1,6 +1,8 @@
 import { baseElysia } from '@/base'
 import db from '@/lib/db'
+import { env } from '@/lib/env'
 import { apiKeyAuthorizationMiddleware } from '@/middlewares/auth'
+import { defaultRateLimitOptions } from '@/middlewares/rateLimit'
 import {
 	ConstructSuccessResponseSchemaWithData,
 	GeneralErrorResponseSchema,
@@ -17,6 +19,7 @@ import { logger } from '@/utils/logger'
 import { until } from '@open-draft/until'
 import { ApiKeyPermission } from '@prisma/client'
 import { t } from 'elysia'
+import { rateLimit } from 'elysia-rate-limit'
 
 export const CreateLinkBodySchema = t.Object({
 	title: LinkTitleSchema,
@@ -25,6 +28,13 @@ export const CreateLinkBodySchema = t.Object({
 })
 
 export const LinkCreateRoute = baseElysia()
+	.use(
+		rateLimit({
+			...defaultRateLimitOptions,
+			max: env.CREATE_LINK_RATE_LIMIT,
+			duration: env.CREATE_LINK_RATE_LIMIT_DURATION_MS,
+		}),
+	)
 	.use(apiKeyAuthorizationMiddleware([ApiKeyPermission.LINK_WRITE]))
 	.post(
 		'',

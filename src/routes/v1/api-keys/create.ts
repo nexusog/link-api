@@ -1,6 +1,8 @@
 import { baseElysia } from '@/base'
 import db from '@/lib/db'
+import { env } from '@/lib/env'
 import { workspaceAuthorizationMiddleware } from '@/middlewares/auth'
+import { defaultRateLimitOptions } from '@/middlewares/rateLimit'
 import {
 	ConstructSuccessResponseSchemaWithData,
 	GeneralErrorResponseSchema,
@@ -15,6 +17,7 @@ import { generateApiKey, generateApiKeyId } from '@/utils/generator'
 import { logger } from '@/utils/logger'
 import { until } from '@open-draft/until'
 import { t } from 'elysia'
+import { rateLimit } from 'elysia-rate-limit'
 
 export const ApiKeyCreateBodySchema = t.Object({
 	label: ApiKeyLabelSchema,
@@ -22,6 +25,13 @@ export const ApiKeyCreateBodySchema = t.Object({
 })
 
 export const ApiKeyCreateRoute = baseElysia()
+	.use(
+		rateLimit({
+			...defaultRateLimitOptions,
+			max: env.CREATE_API_KEY_RATE_LIMIT,
+			duration: env.CREATE_API_KEY_RATE_LIMIT_DURATION_MS,
+		}),
+	)
 	.use(workspaceAuthorizationMiddleware)
 	.post(
 		'',

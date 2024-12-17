@@ -1,6 +1,8 @@
 import { baseElysia } from '@/base'
 import db from '@/lib/db'
+import { env } from '@/lib/env'
 import { apiKeyAuthorizationMiddleware } from '@/middlewares/auth'
+import { defaultRateLimitOptions } from '@/middlewares/rateLimit'
 import {
 	ConstructSuccessResponseSchemaWithData,
 	GeneralErrorResponseSchema,
@@ -11,6 +13,7 @@ import { logger } from '@/utils/logger'
 import { until } from '@open-draft/until'
 import { ApiKeyPermission, EngagementType } from '@prisma/client'
 import { t } from 'elysia'
+import { rateLimit } from 'elysia-rate-limit'
 import moment from 'moment'
 
 export const LinkStatsQuerySchema = t.Object({
@@ -27,6 +30,13 @@ export const LinkStatsQuerySchema = t.Object({
 })
 
 export const LinkStatsRoute = baseElysia()
+	.use(
+		rateLimit({
+			...defaultRateLimitOptions,
+			max: env.STATS_RATE_LIMIT,
+			duration: env.STATS_RATE_LIMIT_DURATION_MS,
+		}),
+	)
 	.use(apiKeyAuthorizationMiddleware([ApiKeyPermission.ENGAGEMENT_READ]))
 	.get(
 		'/:id/stats',

@@ -7,12 +7,16 @@ import { t } from 'elysia'
 import cors from '@elysiajs/cors'
 import { compression } from 'elysia-compression'
 import { env } from '@/lib/env'
+import { ip } from 'elysia-ip'
+import { rateLimit } from 'elysia-rate-limit'
+import { defaultRateLimitOptions } from './middlewares/rateLimit'
 
 export const app = baseElysia({
 	precompile: true,
 	name: 'root',
 })
 	.use(compression())
+	.use(ip())
 	.use(
 		cors({
 			origin:
