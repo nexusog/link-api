@@ -1,10 +1,12 @@
 import { baseElysia } from '@/base'
+import { RedirectRouteLinkFetchCache } from '@/lib/cache'
 import db from '@/lib/db'
 import { env } from '@/lib/env'
 import { defaultRateLimitOptions } from '@/middlewares/rateLimit'
 import { GeneralErrorResponseSchema } from '@/types/response'
 import { LinkEngagementTypeSchema } from '@/types/schemas/link'
 import { logger } from '@/utils/logger'
+import { memoize } from '@/utils/memoize'
 import { until } from '@open-draft/until'
 import { redirect, t } from 'elysia'
 import { rateLimit } from 'elysia-rate-limit'
@@ -29,22 +31,24 @@ export const LinkRedirectRoute = baseElysia()
 
 			// get link record
 			const { data: link, error: LinkFetchError } = await until(() =>
-				db.link.findFirst({
-					where: {
-						OR: [
-							{
-								id,
-							},
-							{
-								shortName: id,
-							},
-						],
-					},
-					select: {
-						id: true,
-						url: true,
-					},
-				}),
+				memoize(RedirectRouteLinkFetchCache, id, () =>
+					db.link.findFirst({
+						where: {
+							OR: [
+								{
+									id,
+								},
+								{
+									shortName: id,
+								},
+							],
+						},
+						select: {
+							id: true,
+							url: true,
+						},
+					}),
+				),
 			)
 
 			if (LinkFetchError) {

@@ -11,6 +11,7 @@
 	"dependencies": {
 		"@elysiajs/cors": "^1.1.1",
 		"@elysiajs/swagger": "^1.1.6",
+		"@isaacs/ttlcache": "^1.4.1",
 		"@nexusog/crypto": "^1.0.0-alpha.3",
 		"@open-draft/until": "^2.1.0",
 		"@prisma/client": "^5.22.0",

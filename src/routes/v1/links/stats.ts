@@ -1,4 +1,5 @@
 import { baseElysia } from '@/base'
+import { StatsRouteLinkFetchCache } from '@/lib/cache'
 import db from '@/lib/db'
 import { env } from '@/lib/env'
 import { apiKeyAuthorizationMiddleware } from '@/middlewares/auth'
@@ -10,6 +11,7 @@ import {
 import { LinkEngagementTypeSchema, LinkIdSchema } from '@/types/schemas/link'
 import { ApiKeyAuthorizationHeaders } from '@/types/schemas/middleware'
 import { logger } from '@/utils/logger'
+import { memoize } from '@/utils/memoize'
 import { until } from '@open-draft/until'
 import { ApiKeyPermission, EngagementType } from '@prisma/client'
 import { t } from 'elysia'
@@ -76,35 +78,37 @@ export const LinkStatsRoute = baseElysia()
 
 			// get link record
 			const { data: link, error: LinkFetchError } = await until(() =>
-				db.link.findFirst({
-					where: {
-						OR: [
-							{
-								id,
-							},
-							{
-								shortName: id,
-							},
-						],
-					},
-					select: {
-						id: true,
-						url: true,
-						engagements: {
-							where: {
-								createdAt: {
-									gte: sinceParsed.toDate(),
-									lte: untilParsed.toDate(),
+				memoize(StatsRouteLinkFetchCache, id, () =>
+					db.link.findFirst({
+						where: {
+							OR: [
+								{
+									id,
+								},
+								{
+									shortName: id,
+								},
+							],
+						},
+						select: {
+							id: true,
+							url: true,
+							engagements: {
+								where: {
+									createdAt: {
+										gte: sinceParsed.toDate(),
+										lte: untilParsed.toDate(),
+									},
+								},
+								select: {
+									id: true,
+									engagementType: true,
+									createdAt: true,
 								},
 							},
-							select: {
-								id: true,
-								engagementType: true,
-								createdAt: true,
-							},
 						},
-					},
-				}),
+					}),
+				),
 			)
 
 			if (LinkFetchError) {
