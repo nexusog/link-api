@@ -1,17 +1,13 @@
 import { baseElysia } from '@/base'
-import { StatsRouteLinkFetchCache } from '@/lib/cache'
+import { StatsRouteLinkFetchCacheMemoizer } from '@/lib/cache'
 import db from '@/lib/db'
 import { env } from '@/lib/env'
 import { apiKeyAuthorizationMiddleware } from '@/middlewares/auth'
 import { defaultRateLimitOptions } from '@/middlewares/rateLimit'
-import {
-	ConstructSuccessResponseSchemaWithData,
-	GeneralErrorResponseSchema,
-} from '@/types/response'
 import { LinkEngagementTypeSchema, LinkIdSchema } from '@/types/schemas/link'
 import { ApiKeyAuthorizationHeaders } from '@/types/schemas/middleware'
 import { logger } from '@/utils/logger'
-import { memoize } from '@/utils/memoize'
+import { Responses } from '@nexusog/golakost'
 import { until } from '@open-draft/until'
 import { ApiKeyPermission, EngagementType } from '@prisma/client'
 import { t } from 'elysia'
@@ -78,7 +74,7 @@ export const LinkStatsRoute = baseElysia()
 
 			// get link record
 			const { data: link, error: LinkFetchError } = await until(() =>
-				memoize(StatsRouteLinkFetchCache, id, () =>
+				StatsRouteLinkFetchCacheMemoizer.memoize(id, () =>
 					db.link.findFirst({
 						where: {
 							OR: [
@@ -145,7 +141,7 @@ export const LinkStatsRoute = baseElysia()
 		{
 			query: LinkStatsQuerySchema,
 			response: {
-				200: ConstructSuccessResponseSchemaWithData(
+				200: Responses.ConstructSuccessResponseSchema(
 					t.Object({
 						id: LinkIdSchema,
 						totalRedirects: t.Number(),
@@ -167,10 +163,10 @@ export const LinkStatsRoute = baseElysia()
 						),
 					}),
 				),
-				500: GeneralErrorResponseSchema,
-				403: GeneralErrorResponseSchema,
-				400: GeneralErrorResponseSchema,
-				404: GeneralErrorResponseSchema,
+				500: Responses.ErrorResponseSchema,
+				403: Responses.ErrorResponseSchema,
+				400: Responses.ErrorResponseSchema,
+				404: Responses.ErrorResponseSchema,
 			},
 			headers: ApiKeyAuthorizationHeaders,
 		},

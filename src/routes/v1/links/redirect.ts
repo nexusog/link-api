@@ -1,12 +1,11 @@
 import { baseElysia } from '@/base'
-import { RedirectRouteLinkFetchCache } from '@/lib/cache'
+import { RedirectRouteLinkFetchCacheMemoizer } from '@/lib/cache'
 import db from '@/lib/db'
 import { env } from '@/lib/env'
 import { defaultRateLimitOptions } from '@/middlewares/rateLimit'
-import { GeneralErrorResponseSchema } from '@/types/response'
 import { LinkEngagementTypeSchema } from '@/types/schemas/link'
 import { logger } from '@/utils/logger'
-import { memoize } from '@/utils/memoize'
+import { Responses } from '@nexusog/golakost'
 import { until } from '@open-draft/until'
 import { redirect, t } from 'elysia'
 import { rateLimit } from 'elysia-rate-limit'
@@ -31,7 +30,7 @@ export const LinkRedirectRoute = baseElysia()
 
 			// get link record
 			const { data: link, error: LinkFetchError } = await until(() =>
-				memoize(RedirectRouteLinkFetchCache, id, () =>
+				RedirectRouteLinkFetchCacheMemoizer.memoize(id, () =>
 					db.link.findFirst({
 						where: {
 							OR: [
@@ -95,8 +94,8 @@ export const LinkRedirectRoute = baseElysia()
 			query: LinkRedirectQuerySchema,
 			response: {
 				307: t.Object({}),
-				500: GeneralErrorResponseSchema,
-				404: GeneralErrorResponseSchema,
+				500: Responses.ErrorResponseSchema,
+				404: Responses.ErrorResponseSchema,
 			},
 			detail: {
 				description: 'Redirect to URL of a short link',
