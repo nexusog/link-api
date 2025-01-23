@@ -9,6 +9,10 @@ export const env = createEnv({
 		DATABASE_URL: z.string().url(),
 		PORT: z.string(),
 		CROSS_ORIGINS: z.string().optional().default('*'),
+		TRAFFIC_LOG: z
+			.enum(['true', 'false'])
+			.transform((value) => value === 'true')
+			.default('true'),
 		LOG_LEVEL: zodUint.optional().default(999),
 
 		WORKSPACE_ID_PREFIX: z.string().optional().default('workspace_'),

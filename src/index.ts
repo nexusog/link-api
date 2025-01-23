@@ -3,7 +3,7 @@ import { baseElysia } from '@/base'
 import { logger as NiceLogger } from '@tqman/nice-logger'
 import { logger } from '@/utils/logger'
 import { V1Routes } from '@/routes/v1'
-import Elysia, { t } from 'elysia'
+import { t } from 'elysia'
 import cors from '@elysiajs/cors'
 import { compression } from 'elysia-compression'
 import { env } from '@/lib/env'
@@ -29,17 +29,8 @@ export const app = baseElysia({
 			withTimestamp: () => {
 				return new Date().toISOString()
 			},
+			enabled: env.TRAFFIC_LOG,
 		}),
-	)
-	.use(
-		new Elysia({
-			name: 'IpHashLogger',
-		})
-			.use(ip())
-			.resolve(({ ip }) => {
-				logger.info(`IP: ${Bun.hash(JSON.stringify(ip)).toString()}`)
-			})
-			.as('plugin'),
 	)
 	.use(
 		swagger({
