@@ -10,7 +10,7 @@
 	},
 	"dependencies": {
 		"@elysiajs/cors": "^1.1.1",
-		"@elysiajs/swagger": "^1.1.6",
+		"@elysiajs/swagger": "^1.2.1",
 		"@isaacs/ttlcache": "^1.4.1",
 		"@nexusog/crypto": "^1.0.0-alpha.3",
 		"@nexusog/golakost": "^0.3.0",
