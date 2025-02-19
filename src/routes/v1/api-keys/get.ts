@@ -8,7 +8,7 @@ import {
 import {
 	ApiKeyIdSchema,
 	ApiKeyLabelSchema,
-	ApiKeyPermissionsSchema,
+	ApiKeyPermissionArraySchema,
 	ApiKeySchema,
 } from '@/types/schemas/api-key'
 import { logger } from '@/utils/logger'
@@ -84,7 +84,7 @@ export const ApiKeyGetRoute = baseElysia()
 								id: ApiKeyIdSchema,
 								key: ApiKeySchema,
 								label: ApiKeyLabelSchema,
-								permissions: ApiKeyPermissionsSchema,
+								permissions: ApiKeyPermissionArraySchema,
 								createdAt: t.Date(),
 							}),
 						),

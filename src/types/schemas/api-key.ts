@@ -10,7 +10,7 @@ export const ApiKeyLabelSchema = t.String({
 
 export const ApiKeyPermissionSchema = t.Enum(ApiKeyPermission)
 
-export const ApiKeyPermissionsSchema = t.Array(ApiKeyPermissionSchema)
+export const ApiKeyPermissionArraySchema = t.Array(ApiKeyPermissionSchema)
 
 export const ApiKeyIdSchema = t.String({
 	minLength: 1,

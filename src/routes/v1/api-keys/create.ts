@@ -10,7 +10,7 @@ import {
 import {
 	ApiKeyIdSchema,
 	ApiKeyLabelSchema,
-	ApiKeyPermissionsSchema,
+	ApiKeyPermissionArraySchema,
 	ApiKeySchema,
 } from '@/types/schemas/api-key'
 import { generateApiKey, generateApiKeyId } from '@/utils/generator'
