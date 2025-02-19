@@ -3,16 +3,13 @@ import db from '@/lib/db'
 import { env } from '@/lib/env'
 import { defaultRateLimitOptions } from '@/middlewares/rateLimit'
 import {
-	ConstructSuccessResponseSchemaWithData,
-	GeneralErrorResponseSchema,
-} from '@/types/response'
-import {
 	WorkspaceIdSchema,
 	WorkspaceNameSchema,
 	WorkspaceSecretSchema,
 } from '@/types/schemas/workspace'
 import { generateWorkspaceId, generateWorkspaceSecret } from '@/utils/generator'
 import { logger } from '@/utils/logger'
+import { Responses } from '@nexusog/golakost'
 import { until } from '@open-draft/until'
 import { t } from 'elysia'
 import { rateLimit } from 'elysia-rate-limit'
@@ -92,13 +89,13 @@ export const WorkspacesCreateRoute = baseElysia()
 		{
 			body: WorkspacesCreateBodySchema,
 			response: {
-				200: ConstructSuccessResponseSchemaWithData(
+				200: Responses.ConstructSuccessResponseSchema(
 					t.Object({
 						id: WorkspaceIdSchema,
 						secret: WorkspaceSecretSchema,
 					}),
 				),
-				500: GeneralErrorResponseSchema,
+				500: Responses.ErrorResponseSchema,
 			},
 		},
 	)

@@ -4,10 +4,6 @@ import { env } from '@/lib/env'
 import { workspaceAuthorizationMiddleware } from '@/middlewares/auth'
 import { defaultRateLimitOptions } from '@/middlewares/rateLimit'
 import {
-	ConstructSuccessResponseSchemaWithData,
-	GeneralErrorResponseSchema,
-} from '@/types/response'
-import {
 	ApiKeyIdSchema,
 	ApiKeyLabelSchema,
 	ApiKeyPermissionArraySchema,
@@ -15,13 +11,14 @@ import {
 } from '@/types/schemas/api-key'
 import { generateApiKey, generateApiKeyId } from '@/utils/generator'
 import { logger } from '@/utils/logger'
+import { Responses } from '@nexusog/golakost'
 import { until } from '@open-draft/until'
 import { t } from 'elysia'
 import { rateLimit } from 'elysia-rate-limit'
 
 export const ApiKeyCreateBodySchema = t.Object({
 	label: ApiKeyLabelSchema,
-	permissions: ApiKeyPermissionsSchema,
+	permissions: ApiKeyPermissionArraySchema,
 })
 
 export const ApiKeyCreateRoute = baseElysia()
@@ -97,13 +94,13 @@ export const ApiKeyCreateRoute = baseElysia()
 		{
 			body: ApiKeyCreateBodySchema,
 			response: {
-				200: ConstructSuccessResponseSchemaWithData(
+				200: Responses.ConstructSuccessResponseSchema(
 					t.Object({
 						id: ApiKeyIdSchema,
 						key: ApiKeySchema,
 					}),
 				),
-				500: GeneralErrorResponseSchema,
+				500: Responses.ErrorResponseSchema,
 			},
 		},
 	)

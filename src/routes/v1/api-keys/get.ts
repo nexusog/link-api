@@ -2,16 +2,13 @@ import { baseElysia } from '@/base'
 import db from '@/lib/db'
 import { workspaceAuthorizationMiddleware } from '@/middlewares/auth'
 import {
-	ConstructSuccessResponseSchemaWithData,
-	GeneralErrorResponseSchema,
-} from '@/types/response'
-import {
 	ApiKeyIdSchema,
 	ApiKeyLabelSchema,
 	ApiKeyPermissionArraySchema,
 	ApiKeySchema,
 } from '@/types/schemas/api-key'
 import { logger } from '@/utils/logger'
+import { Responses } from '@nexusog/golakost'
 import { until } from '@open-draft/until'
 import { t } from 'elysia'
 
@@ -77,7 +74,7 @@ export const ApiKeyGetRoute = baseElysia()
 				),
 			}),
 			response: {
-				200: ConstructSuccessResponseSchemaWithData(
+				200: Responses.ConstructSuccessResponseSchema(
 					t.Object({
 						apiKeys: t.Array(
 							t.Object({
@@ -91,7 +88,7 @@ export const ApiKeyGetRoute = baseElysia()
 						nextCursor: t.Nullable(t.String()),
 					}),
 				),
-				500: GeneralErrorResponseSchema,
+				500: Responses.ErrorResponseSchema,
 			},
 		},
 	)

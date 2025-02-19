@@ -4,10 +4,6 @@ import { env } from '@/lib/env'
 import { apiKeyAuthorizationMiddleware } from '@/middlewares/auth'
 import { defaultRateLimitOptions } from '@/middlewares/rateLimit'
 import {
-	ConstructSuccessResponseSchemaWithData,
-	GeneralErrorResponseSchema,
-} from '@/types/response'
-import {
 	LinkIdSchema,
 	LinkShortNameSchema,
 	LinkTitleSchema,
@@ -16,6 +12,7 @@ import {
 import { ApiKeyAuthorizationHeaders } from '@/types/schemas/middleware'
 import { generateLinkId } from '@/utils/generator'
 import { logger } from '@/utils/logger'
+import { Responses } from '@nexusog/golakost'
 import { until } from '@open-draft/until'
 import { ApiKeyPermission } from '@prisma/client'
 import { t } from 'elysia'
@@ -130,14 +127,14 @@ export const LinkCreateRoute = baseElysia()
 		{
 			body: CreateLinkBodySchema,
 			response: {
-				200: ConstructSuccessResponseSchemaWithData(
+				200: Responses.ConstructSuccessResponseSchema(
 					t.Object({
 						id: LinkIdSchema,
 						shortName: t.Optional(LinkShortNameSchema),
 					}),
 				),
-				500: GeneralErrorResponseSchema,
-				409: GeneralErrorResponseSchema,
+				500: Responses.ErrorResponseSchema,
+				409: Responses.ErrorResponseSchema,
 			},
 			headers: ApiKeyAuthorizationHeaders,
 		},

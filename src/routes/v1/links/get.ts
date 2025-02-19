@@ -2,10 +2,6 @@ import { baseElysia } from '@/base'
 import db from '@/lib/db'
 import { apiKeyAuthorizationMiddleware } from '@/middlewares/auth'
 import {
-	ConstructSuccessResponseSchemaWithData,
-	GeneralErrorResponseSchema,
-} from '@/types/response'
-import {
 	LinkIdSchema,
 	LinkShortNameSchema,
 	LinkTitleSchema,
@@ -13,6 +9,7 @@ import {
 } from '@/types/schemas/link'
 import { ApiKeyAuthorizationHeaders } from '@/types/schemas/middleware'
 import { logger } from '@/utils/logger'
+import { Responses } from '@nexusog/golakost'
 import { until } from '@open-draft/until'
 import { ApiKeyPermission } from '@prisma/client'
 import { t } from 'elysia'
@@ -79,7 +76,7 @@ export const LinkGetRoute = baseElysia()
 				),
 			}),
 			response: {
-				200: ConstructSuccessResponseSchemaWithData(
+				200: Responses.ConstructSuccessResponseSchema(
 					t.Object({
 						links: t.Array(
 							t.Object({
@@ -94,8 +91,8 @@ export const LinkGetRoute = baseElysia()
 						nextCursor: t.Nullable(t.String()),
 					}),
 				),
-				400: GeneralErrorResponseSchema,
-				500: GeneralErrorResponseSchema,
+				400: Responses.ErrorResponseSchema,
+				500: Responses.ErrorResponseSchema,
 			},
 			headers: ApiKeyAuthorizationHeaders,
 		},
@@ -154,7 +151,7 @@ export const LinkGetRoute = baseElysia()
 		},
 		{
 			response: {
-				200: ConstructSuccessResponseSchemaWithData(
+				200: Responses.ConstructSuccessResponseSchema(
 					t.Object({
 						id: LinkIdSchema,
 						shortName: t.Nullable(LinkShortNameSchema),
@@ -164,8 +161,8 @@ export const LinkGetRoute = baseElysia()
 						updatedAt: t.Date(),
 					}),
 				),
-				500: GeneralErrorResponseSchema,
-				404: GeneralErrorResponseSchema,
+				500: Responses.ErrorResponseSchema,
+				404: Responses.ErrorResponseSchema,
 			},
 			headers: ApiKeyAuthorizationHeaders,
 		},

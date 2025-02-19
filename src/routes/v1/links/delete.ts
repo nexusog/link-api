@@ -1,12 +1,9 @@
 import { baseElysia } from '@/base'
 import db from '@/lib/db'
 import { apiKeyAuthorizationMiddleware } from '@/middlewares/auth'
-import {
-	GeneralErrorResponseSchema,
-	GeneralSuccessResponseSchema,
-} from '@/types/response'
 import { ApiKeyAuthorizationHeaders } from '@/types/schemas/middleware'
 import { logger } from '@/utils/logger'
+import { Responses } from '@nexusog/golakost'
 import { until } from '@open-draft/until'
 import { ApiKeyPermission } from '@prisma/client'
 
@@ -76,9 +73,9 @@ export const LinkDeleteRoute = baseElysia()
 		{
 			headers: ApiKeyAuthorizationHeaders,
 			response: {
-				200: GeneralSuccessResponseSchema,
-				404: GeneralErrorResponseSchema,
-				500: GeneralErrorResponseSchema,
+				200: Responses.SuccessResponseSchema,
+				404: Responses.ErrorResponseSchema,
+				500: Responses.ErrorResponseSchema,
 			},
 		},
 	)
