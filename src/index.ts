@@ -53,6 +53,9 @@ export const app = baseElysia({
 			response: {
 				200: t.Literal('OK'),
 			},
+			detail: {
+				tags: ['Misc'],
+			},
 		},
 	)
 

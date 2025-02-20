@@ -7,6 +7,9 @@ import { LinkDeleteRoute } from './delete'
 
 export const LinksRoutes = baseElysia({
 	prefix: '/links',
+	detail: {
+		tags: ['Links'],
+	},
 })
 	.use(LinkCreateRoute)
 	.use(LinkGetRoute)
