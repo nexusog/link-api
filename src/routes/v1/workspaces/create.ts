@@ -23,7 +23,7 @@ export const WorkspacesCreateRoute = baseElysia()
 		rateLimit({
 			...defaultRateLimitOptions,
 			max: env.CREATE_WORKSPACE_RATE_LIMIT,
-			duration: env.CREATE_API_KEY_RATE_LIMIT_DURATION_MS,
+			duration: env.CREATE_WORKSPACE_RATE_LIMIT_DURATION_MS,
 		}),
 	)
 	.post(
