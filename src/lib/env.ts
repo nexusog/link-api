@@ -41,6 +41,12 @@ export const env = createEnv({
 			.optional()
 			.default(moment.duration(5, 'minute').asMilliseconds()),
 
+		// GET /workspaces/{id}
+		GET_WORKSPACE_BY_ID_RATE_LIMIT: zodUint.optional().default(30),
+		GET_WORKSPACE_BY_ID_RATE_LIMIT_DURATION_MS: zodUint
+			.optional()
+			.default(moment.duration(1, 'minute').asMilliseconds()),
+
 		// POST /api-keys
 		CREATE_API_KEY_RATE_LIMIT: zodUint.optional().default(10),
 		CREATE_API_KEY_RATE_LIMIT_DURATION_MS: zodUint
