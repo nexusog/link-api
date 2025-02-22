@@ -3,7 +3,10 @@ import { until } from '@open-draft/until'
 import { Elysia, t } from 'elysia'
 import { logger } from '@/utils/logger'
 import {
+	API_KEY_HEADER_KEY,
 	ApiKeyAuthorizationHeaders,
+	WORKSPACE_ID_HEADER_KEY,
+	WORKSPACE_SECRET_HEADER_KEY,
 	WorkspaceAuthorizationHeaders,
 } from '@/types/schemas/middleware'
 import { ApiKeyPermission } from '@prisma/client'
@@ -16,8 +19,8 @@ export const workspaceAuthorizationMiddleware = new Elysia({
 	})
 	.resolve(async ({ headers }) => {
 		const {
-			'x-workspace-id': workspaceId,
-			'x-workspace-secret': workspaceSecret,
+			[WORKSPACE_ID_HEADER_KEY]: workspaceId,
+			[WORKSPACE_SECRET_HEADER_KEY]: workspaceSecret,
 		} = headers
 
 		const { data: workspace, error: WorkspaceFindError } = await until(
@@ -82,8 +85,10 @@ export const apiKeyAuthorizationMiddleware = (
 			headers: ApiKeyAuthorizationHeaders,
 		})
 		.resolve(async ({ headers }) => {
-			const { 'x-workspace-id': workspaceId, 'x-api-key': apiKey } =
-				headers
+			const {
+				[WORKSPACE_ID_HEADER_KEY]: workspaceId,
+				[API_KEY_HEADER_KEY]: apiKey,
+			} = headers
 
 			const { data: apiKeyById, error: ApiKeyFindError } = await until(
 				async () =>
