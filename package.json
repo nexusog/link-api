@@ -3,8 +3,8 @@
 	"name": "@nexusog/link-api",
 	"version": "0.0.1",
 	"scripts": {
-		"dev": "bun run --watch src/index.ts",
-		"start": "bun run src/index.ts",
+		"dev": "NODE_ENV=development bun run --watch src/index.ts",
+		"start": "NODE_ENV=production bun run src/index.ts",
 		"format": "prettier --write .",
 		"prepare": "bunx prisma generate"
 	},

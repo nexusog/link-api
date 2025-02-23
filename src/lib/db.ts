@@ -11,6 +11,6 @@ const db =
 				: ['warn', 'error'],
 	})
 
-if (process.env.NODE_ENV !== 'production') globalForDb.db = db
+if (Bun.env.NODE_ENV !== 'production') globalForDb.db = db
 
 export default db
