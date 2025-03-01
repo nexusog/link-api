@@ -11,8 +11,13 @@ import { ApiKeyAuthorizationHeaders } from '@/types/schemas/middleware'
 import { logger } from '@/utils/logger'
 import { Responses } from '@nexusog/golakost'
 import { until } from '@open-draft/until'
-import { ApiKeyPermission } from '@prisma/client'
+import { ApiKeyPermission, Prisma } from '@prisma/client'
 import { t } from 'elysia'
+
+enum GetLinksSortBy {
+	CREATED_AT = 'createdAt',
+	TOTAL_REDIRECTS = 'totalRedirects',
+}
 
 export const LinkGetRoute = baseElysia()
 	.use(apiKeyAuthorizationMiddleware([ApiKeyPermission.LINK_READ]))
@@ -20,8 +25,29 @@ export const LinkGetRoute = baseElysia()
 		'',
 		async ({ error, workspaceId, query }) => {
 			const { page = 1, pageSize = 10 } = query
+			let { sortBy } = query
 
 			const skip = (page - 1) * pageSize
+
+			let orderBy: Prisma.LinkOrderByWithRelationInput = {}
+
+			if (!sortBy) {
+				sortBy = GetLinksSortBy.CREATED_AT
+			}
+
+			if (sortBy === GetLinksSortBy.CREATED_AT) {
+				orderBy = {
+					createdAt: 'desc',
+				}
+			}
+
+			if (sortBy === GetLinksSortBy.TOTAL_REDIRECTS) {
+				orderBy = {
+					engagements: {
+						_count: 'desc',
+					},
+				}
+			}
 
 			const { error: LinkFetchError, data: links } = await until(() =>
 				db.link.findMany({
@@ -36,9 +62,7 @@ export const LinkGetRoute = baseElysia()
 						createdAt: true,
 						updatedAt: true,
 					},
-					orderBy: {
-						updatedAt: 'desc',
-					},
+					orderBy,
 					skip,
 					take: pageSize,
 				}),
@@ -94,6 +118,7 @@ export const LinkGetRoute = baseElysia()
 						minimum: 1,
 					}),
 				),
+				sortBy: t.Optional(t.Enum(GetLinksSortBy)),
 			}),
 			response: {
 				200: Responses.ConstructSuccessResponseSchema(
