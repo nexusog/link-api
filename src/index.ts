@@ -16,7 +16,15 @@ export const app = baseElysia({
 })
 	.use(compression())
 	.use(ip())
-	.use(etag())
+	.use(
+		etag({
+			serialize(response) {
+				if (typeof response === 'object') {
+					return JSON.stringify(response)
+				}
+			},
+		}),
+	)
 	.use(
 		cors({
 			origin:
