@@ -55,12 +55,33 @@ export const LinkGetRoute = baseElysia()
 				})
 			}
 
+			const { data: totalCount, error: LinkTotalCountError } =
+				await until(() =>
+					db.link.count({
+						where: {
+							workspace: {
+								id: workspaceId,
+							},
+						},
+					}),
+				)
+
+			if (LinkTotalCountError) {
+				logger.fail('Failed to fetch link total count')
+				logger.fail(LinkTotalCountError)
+				return error(500, {
+					error: true,
+					message: 'Failed to fetch link total count',
+				})
+			}
+
 			return {
 				error: false,
 				message: 'Links found',
 				data: {
 					links: links.slice(0, limit),
 					nextCursor: links.length > limit ? links[limit].id : null,
+					count: totalCount,
 				},
 			}
 		},
@@ -89,6 +110,7 @@ export const LinkGetRoute = baseElysia()
 							}),
 						),
 						nextCursor: t.Nullable(t.String()),
+						count: t.Number(),
 					}),
 				),
 				400: Responses.ErrorResponseSchema,
