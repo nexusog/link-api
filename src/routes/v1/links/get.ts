@@ -19,7 +19,9 @@ export const LinkGetRoute = baseElysia()
 	.get(
 		'',
 		async ({ error, workspaceId, query }) => {
-			const { cursor, limit = 10 } = query
+			const { page = 1, pageSize = 10 } = query
+
+			const skip = (page - 1) * pageSize
 
 			const { error: LinkFetchError, data: links } = await until(() =>
 				db.link.findMany({
@@ -37,12 +39,8 @@ export const LinkGetRoute = baseElysia()
 					orderBy: {
 						updatedAt: 'desc',
 					},
-					take: limit + 1,
-					cursor: cursor
-						? {
-								id: cursor,
-							}
-						: undefined,
+					skip,
+					take: pageSize,
 				}),
 			)
 
@@ -79,16 +77,17 @@ export const LinkGetRoute = baseElysia()
 				error: false,
 				message: 'Links found',
 				data: {
-					links: links.slice(0, limit),
-					nextCursor: links.length > limit ? links[limit].id : null,
+					links: links,
 					count: totalCount,
+					page,
+					pageSize,
 				},
 			}
 		},
 		{
 			query: t.Object({
-				cursor: t.Optional(t.String()),
-				limit: t.Optional(
+				page: t.Optional(t.Number()),
+				pageSize: t.Optional(
 					t.Number({
 						default: 10,
 						maximum: 50,
@@ -109,8 +108,9 @@ export const LinkGetRoute = baseElysia()
 								updatedAt: t.Date(),
 							}),
 						),
-						nextCursor: t.Nullable(t.String()),
 						count: t.Number(),
+						page: t.Number(),
+						pageSize: t.Number(),
 					}),
 				),
 				400: Responses.ErrorResponseSchema,
