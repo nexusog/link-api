@@ -8,6 +8,7 @@ import cors from '@elysiajs/cors'
 import { compression } from 'elysia-compression'
 import { env } from '@/lib/env'
 import { ip } from 'elysia-ip'
+import { etag } from '@bogeychan/elysia-etag'
 
 export const app = baseElysia({
 	precompile: true,
@@ -15,6 +16,7 @@ export const app = baseElysia({
 })
 	.use(compression())
 	.use(ip())
+	.use(etag())
 	.use(
 		cors({
 			origin:
