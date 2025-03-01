@@ -24,7 +24,7 @@ export const LinkGetRoute = baseElysia()
 	.get(
 		'',
 		async ({ error, workspaceId, query }) => {
-			const { page = 1, pageSize = 10 } = query
+			const { page = 1, pageSize = 10, search } = query
 			let { sortBy } = query
 
 			const skip = (page - 1) * pageSize
@@ -49,11 +49,42 @@ export const LinkGetRoute = baseElysia()
 				}
 			}
 
+			const whereObject: Prisma.LinkWhereInput = {
+				workspaceId,
+				OR:
+					typeof search === 'string' && search.length > 0
+						? [
+								{
+									title: {
+										contains: search,
+										mode: 'insensitive',
+									},
+								},
+								{
+									url: {
+										contains: search,
+										mode: 'insensitive',
+									},
+								},
+								{
+									id: {
+										contains: search,
+										mode: 'insensitive',
+									},
+								},
+								{
+									shortName: {
+										contains: search,
+										mode: 'insensitive',
+									},
+								},
+							]
+						: undefined,
+			}
+
 			const { error: LinkFetchError, data: links } = await until(() =>
 				db.link.findMany({
-					where: {
-						workspaceId,
-					},
+					where: whereObject,
 					select: {
 						id: true,
 						shortName: true,
@@ -80,11 +111,7 @@ export const LinkGetRoute = baseElysia()
 			const { data: totalCount, error: LinkTotalCountError } =
 				await until(() =>
 					db.link.count({
-						where: {
-							workspace: {
-								id: workspaceId,
-							},
-						},
+						where: whereObject,
 					}),
 				)
 
@@ -119,6 +146,12 @@ export const LinkGetRoute = baseElysia()
 					}),
 				),
 				sortBy: t.Optional(t.Enum(GetLinksSortBy)),
+				search: t.Optional(
+					t.String({
+						minLength: 1,
+						maxLength: 100,
+					}),
+				),
 			}),
 			response: {
 				200: Responses.ConstructSuccessResponseSchema(
