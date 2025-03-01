@@ -35,6 +35,10 @@ export const env = createEnv({
 			.optional()
 			.default('-_'),
 
+		LINK_STATS_TIME_RANGE_MAX_DURATION: zodUint
+			.optional()
+			.default(moment.duration(1, 'month').asMilliseconds()),
+
 		// POST /workspaces
 		CREATE_WORKSPACE_RATE_LIMIT: zodUint.optional().default(5),
 		CREATE_WORKSPACE_RATE_LIMIT_DURATION_MS: zodUint

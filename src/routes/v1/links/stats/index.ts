@@ -7,27 +7,36 @@ import { defaultRateLimitOptions } from '@/middlewares/rateLimit'
 import { LinkEngagementTypeSchema, LinkIdSchema } from '@/types/schemas/link'
 import { ApiKeyAuthorizationHeaders } from '@/types/schemas/middleware'
 import { logger } from '@/utils/logger'
+import {
+	fulfillTimeRange,
+	TimeRangeError,
+	validateTimeRange,
+} from '@/utils/time'
 import { Responses } from '@nexusog/golakost'
 import { until } from '@open-draft/until'
 import { ApiKeyPermission, EngagementType } from '@prisma/client'
 import { t } from 'elysia'
 import { rateLimit } from 'elysia-rate-limit'
 import moment from 'moment'
+import { LinkStatsCountRoute } from './count'
 
 export const LinkStatsQuerySchema = t.Object({
 	since: t.Optional(
 		t.String({
-			format: 'date',
+			format: 'date-time',
 		}),
 	),
 	until: t.Optional(
 		t.String({
-			format: 'date',
+			format: 'date-time',
 		}),
 	),
 })
 
-export const LinkStatsRoute = baseElysia()
+export const LinkStatsRoutes = baseElysia({
+	prefix: '/:id/stats',
+})
+	.use(apiKeyAuthorizationMiddleware([ApiKeyPermission.ENGAGEMENT_READ]))
 	.use(
 		rateLimit({
 			...defaultRateLimitOptions,
@@ -35,46 +44,44 @@ export const LinkStatsRoute = baseElysia()
 			duration: env.STATS_RATE_LIMIT_DURATION_MS,
 		}),
 	)
-	.use(apiKeyAuthorizationMiddleware([ApiKeyPermission.ENGAGEMENT_READ]))
 	.get(
-		'/:id/stats',
+		'',
 		async ({ params, error, query }) => {
 			const { id } = params
 
-			// Default duration of 1 month
-			const MaxDuration = moment.duration(1, 'month')
+			const { since: sinceParsed, until: untilParsed } = fulfillTimeRange(
+				query.since ? moment(query.since) : undefined,
+				query.until ? moment(query.until) : undefined,
+				{
+					maxDuration: moment.duration(
+						env.LINK_STATS_TIME_RANGE_MAX_DURATION,
+						'milliseconds',
+					),
+				},
+			)
 
-			// Parse dates or calculate defaults
-			const untilParsed = query.until
-				? moment(query.until)
-				: query.since
-					? moment(query.since).add(MaxDuration)
-					: moment()
+			const { error: DurationValidationError, data } =
+				await until<TimeRangeError>(async () =>
+					validateTimeRange(sinceParsed, untilParsed, {
+						maxDuration: moment.duration(
+							env.LINK_STATS_TIME_RANGE_MAX_DURATION,
+							'milliseconds',
+						),
+					}),
+				)
 
-			const sinceParsed = query.since
-				? moment(query.since)
-				: untilParsed.clone().subtract(MaxDuration)
-
-			// Validate parsed dates
-			if (!sinceParsed.isValid() || !untilParsed.isValid()) {
+			if (DurationValidationError) {
 				return error(400, {
 					error: true,
-					message: "Invalid 'since' or 'until' date provided",
+					message: DurationValidationError.message,
 				})
 			}
 
-			// Ensure the difference is less than 1 month
-			if (untilParsed.diff(sinceParsed, 'months', true) > 1) {
-				return error(400, {
-					error: true,
-					message:
-						"The difference between 'since' and 'until' must be less than 1 month",
-				})
-			}
+			const cacheKey = `${id}-SINCE:${sinceParsed.format('YYYY-MM-DDTHH:MM')}-UNTIL:${untilParsed.format('YYYY-MM-DDTHH:MM')}`
 
 			// get link record
 			const { data: link, error: LinkFetchError } = await until(() =>
-				StatsRouteLinkFetchCacheMemoizer.memoize(id, () =>
+				StatsRouteLinkFetchCacheMemoizer.memoize(cacheKey, () =>
 					db.link.findFirst({
 						where: {
 							OR: [
@@ -132,6 +139,8 @@ export const LinkStatsRoute = baseElysia()
 				error: false,
 				message: 'Link stats found',
 				data: {
+					since: sinceParsed.toDate(),
+					until: untilParsed.toDate(),
 					id: link.id,
 					totalRedirects: engagements.length,
 					engagements,
@@ -143,6 +152,8 @@ export const LinkStatsRoute = baseElysia()
 			response: {
 				200: Responses.ConstructSuccessResponseSchema(
 					t.Object({
+						since: t.Date(),
+						until: t.Date(),
 						id: LinkIdSchema,
 						totalRedirects: t.Number(),
 						engagements: t.Array(
@@ -171,3 +182,4 @@ export const LinkStatsRoute = baseElysia()
 			headers: ApiKeyAuthorizationHeaders,
 		},
 	)
+	.use(LinkStatsCountRoute)

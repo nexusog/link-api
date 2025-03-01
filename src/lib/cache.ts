@@ -53,3 +53,29 @@ export const StatsRouteLinkFetchCacheMemoizer = Modules.globalize(
 			},
 		),
 )
+
+type StatsCountsRouteLinkFetchCacheValue = {
+	id: string
+	url: string
+	_count: {
+		engagements: number
+	}
+} | null
+export const StatsCountRouteLinkFetchCacheMemoizer = Modules.globalize(
+	'StatsCountRouteLinkFetchCacheMemoizer',
+	() =>
+		new Modules.FlexibleMemoizer<
+			TTLCache<string, StatsCountsRouteLinkFetchCacheValue>,
+			StatsCountsRouteLinkFetchCacheValue,
+			string
+		>(
+			new TTLCache({
+				max: 1000,
+				ttl: moment.duration(30, 'seconds').asMilliseconds(),
+			}),
+			{
+				get: (cache, key) => cache.get(key),
+				set: (cache, key, value) => cache.set(key, value),
+			},
+		),
+)
