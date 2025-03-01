@@ -9,6 +9,7 @@ import { Responses } from '@nexusog/golakost'
 import { until } from '@open-draft/until'
 import { redirect, t } from 'elysia'
 import { rateLimit } from 'elysia-rate-limit'
+import moment from 'moment'
 
 const LinkRedirectQuerySchema = t.Object({
 	type: t.Optional(LinkEngagementTypeSchema),
@@ -24,7 +25,7 @@ export const LinkRedirectRoute = baseElysia()
 	)
 	.get(
 		'/:id/redirect',
-		async ({ query, params, error: sendError }) => {
+		async ({ query, params, error: sendError, set }) => {
 			const { id } = params
 			const { type } = query
 
@@ -87,6 +88,9 @@ export const LinkRedirectRoute = baseElysia()
 					)
 				}
 			})
+
+			set.headers['cache-control'] =
+				`public, max-age=${moment.duration(env.REDIRECT_LINK_FETCH_CACHE_TTL, 'milliseconds').asSeconds()}`
 
 			return redirect(link.url, 307)
 		},
