@@ -46,7 +46,7 @@ export const LinkStatsRoutes = baseElysia({
 	)
 	.get(
 		'',
-		async ({ params, error, query }) => {
+		async ({ params, error, query, set }) => {
 			const { id } = params
 
 			const { since: sinceParsed, until: untilParsed } = fulfillTimeRange(
@@ -134,6 +134,9 @@ export const LinkStatsRoutes = baseElysia({
 					e.createdAt.getTime(),
 					e.engagementType,
 				])
+
+			set.headers['cache-control'] =
+				`public, max-age=${moment.duration(env.STATS_LINK_FETCH_CACHE_TTL, 'milliseconds').asSeconds()}`
 
 			return {
 				error: false,

@@ -74,12 +74,26 @@ export const env = createEnv({
 		REDIRECT_RATE_LIMIT_DURATION_MS: zodUint
 			.optional()
 			.default(moment.duration(1, 'minute').asMilliseconds()),
+		REDIRECT_LINK_FETCH_CACHE_TTL: zodUint
+			.optional()
+			.default(moment.duration(1, 'minute').asMilliseconds()),
 
 		// GET /links/{id}/stats
 		STATS_RATE_LIMIT: zodUint.optional().default(100),
 		STATS_RATE_LIMIT_DURATION_MS: zodUint
 			.optional()
 			.default(moment.duration(1, 'minute').asMilliseconds()),
+		STATS_LINK_FETCH_CACHE_TTL: zodUint
+			.optional()
+			.default(moment.duration(30, 'seconds').asMilliseconds()),
+
+		STATS_COUNT_RATE_LIMIT: zodUint.optional().default(200),
+		STATS_COUNT_RATE_LIMIT_DURATION_MS: zodUint
+			.optional()
+			.default(moment.duration(1, 'minute').asMilliseconds()),
+		STATS_COUNT_LINK_FETCH_CACHE_TTL: zodUint
+			.optional()
+			.default(moment.duration(30, 'seconds').asMilliseconds()),
 	},
 	isServer: true,
 	runtimeEnv: Bun.env,

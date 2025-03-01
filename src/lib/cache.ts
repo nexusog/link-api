@@ -2,6 +2,7 @@ import TTLCache from '@isaacs/ttlcache'
 import { Modules } from '@nexusog/golakost'
 import { EngagementType } from '@prisma/client'
 import moment from 'moment'
+import { env } from './env'
 
 type RedirectRouteLinkFetchCacheValue = {
 	id: string
@@ -17,7 +18,9 @@ export const RedirectRouteLinkFetchCacheMemoizer = Modules.globalize(
 		>(
 			new TTLCache<string, RedirectRouteLinkFetchCacheValue>({
 				max: 1000,
-				ttl: moment.duration(1, 'minute').asMilliseconds(),
+				ttl: moment
+					.duration(env.REDIRECT_LINK_FETCH_CACHE_TTL, 'milliseconds')
+					.asMilliseconds(),
 			}),
 			{
 				get: (cache, key) => cache.get(key),
@@ -45,7 +48,9 @@ export const StatsRouteLinkFetchCacheMemoizer = Modules.globalize(
 		>(
 			new TTLCache({
 				max: 1000,
-				ttl: moment.duration(30, 'seconds').asMilliseconds(),
+				ttl: moment
+					.duration(env.STATS_LINK_FETCH_CACHE_TTL, 'milliseconds')
+					.asMilliseconds(),
 			}),
 			{
 				get: (cache, key) => cache.get(key),
@@ -71,7 +76,12 @@ export const StatsCountRouteLinkFetchCacheMemoizer = Modules.globalize(
 		>(
 			new TTLCache({
 				max: 1000,
-				ttl: moment.duration(30, 'seconds').asMilliseconds(),
+				ttl: moment
+					.duration(
+						env.STATS_COUNT_LINK_FETCH_CACHE_TTL,
+						'milliseconds',
+					)
+					.asMilliseconds(),
 			}),
 			{
 				get: (cache, key) => cache.get(key),

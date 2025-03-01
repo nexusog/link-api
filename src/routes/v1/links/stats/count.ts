@@ -33,7 +33,7 @@ export const LinkStatsCountQuerySchema = t.Object({
 
 export const LinkStatsCountRoute = baseElysia().get(
 	'/count',
-	async ({ params, query, error }) => {
+	async ({ params, query, error, set }) => {
 		const { id } = params
 
 		const { since: sinceParsed, until: untilParsed } = fulfillTimeRange(
@@ -97,6 +97,9 @@ export const LinkStatsCountRoute = baseElysia().get(
 				message: 'Link not found',
 			})
 		}
+
+		set.headers['cache-control'] =
+			`public, max-age=${moment.duration(env.STATS_COUNT_LINK_FETCH_CACHE_TTL, 'milliseconds').asSeconds()}`
 
 		return {
 			error: false,
