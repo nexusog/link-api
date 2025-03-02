@@ -2,6 +2,7 @@ import db from '@/lib/db'
 import { fetchUrlTitle } from '@/utils/fetchUrlTitle'
 import { logger } from '@/utils/logger'
 import { until } from '@open-draft/until'
+import { sleep } from 'bun'
 
 export async function linkTitleRefetchCronJob() {
 	logger.withTag('CRON').info('RUN')
@@ -30,6 +31,8 @@ export async function linkTitleRefetchCronJob() {
 				title,
 			},
 		})
+
+		await sleep(1000)
 	}
 
 	logger.withTag('CRON').info('DONE')
