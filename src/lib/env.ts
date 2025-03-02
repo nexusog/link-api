@@ -95,9 +95,7 @@ export const env = createEnv({
 			.optional()
 			.default(moment.duration(30, 'seconds').asMilliseconds()),
 
-		CRON_LINK_TITLE_REFETCH_CRON_PATTERN: z
-			.string()
-			.default('0 10 0 * * *'),
+		CRON_LINK_TITLE_REFETCH_CRON_PATTERN: z.string().default('0 0 * * * *'),
 	},
 	isServer: true,
 	runtimeEnv: Bun.env,
