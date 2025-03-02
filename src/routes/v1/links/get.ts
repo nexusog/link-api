@@ -160,7 +160,7 @@ export const LinkGetRoute = baseElysia()
 							t.Object({
 								id: LinkIdSchema,
 								shortName: t.Nullable(LinkShortNameSchema),
-								title: LinkTitleSchema,
+								title: t.Nullable(LinkTitleSchema),
 								url: LinkURLSchema,
 								createdAt: t.Date(),
 								updatedAt: t.Date(),
@@ -235,7 +235,7 @@ export const LinkGetRoute = baseElysia()
 					t.Object({
 						id: LinkIdSchema,
 						shortName: t.Nullable(LinkShortNameSchema),
-						title: LinkTitleSchema,
+						title: t.Nullable(LinkTitleSchema),
 						url: LinkURLSchema,
 						createdAt: t.Date(),
 						updatedAt: t.Date(),
