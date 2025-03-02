@@ -46,6 +46,6 @@ export async function fetchUrlTitle(url: string): Promise<string> {
 		}
 		return titleElement.text().trim()
 	} catch (error) {
-		throw new Error('Error fetching title')
+		throw new Error('Error fetching title' + error)
 	}
 }
