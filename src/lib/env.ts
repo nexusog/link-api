@@ -94,6 +94,10 @@ export const env = createEnv({
 		STATS_COUNT_LINK_FETCH_CACHE_TTL: zodUint
 			.optional()
 			.default(moment.duration(30, 'seconds').asMilliseconds()),
+
+		CRON_LINK_TITLE_REFETCH_CRON_PATTERN: z
+			.string()
+			.default('0 10 0 * * *'),
 	},
 	isServer: true,
 	runtimeEnv: Bun.env,

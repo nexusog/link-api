@@ -9,6 +9,8 @@ import { compression } from 'elysia-compression'
 import { env } from '@/lib/env'
 import { ip } from 'elysia-ip'
 import { etag } from '@bogeychan/elysia-etag'
+import { cron } from '@elysiajs/cron'
+import { linkTitleRefetchCronJob } from './crons/linkTitleRefetch'
 
 export const app = baseElysia({
 	precompile: true,
@@ -16,6 +18,15 @@ export const app = baseElysia({
 })
 	.use(compression())
 	.use(ip())
+	// cron for re-fetching link title
+	.use(
+		cron({
+			name: 'linkTitleRefetch',
+			pattern: env.CRON_LINK_TITLE_REFETCH_CRON_PATTERN,
+			protect: true,
+			run: linkTitleRefetchCronJob,
+		}),
+	)
 	.use(
 		etag({
 			serialize(response) {
