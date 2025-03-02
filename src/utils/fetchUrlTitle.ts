@@ -30,6 +30,7 @@ export async function fetchUrlTitle(url: string): Promise<string> {
 	try {
 		const res = await fetch(validatedUrl.toString(), {
 			signal: controller.signal,
+			redirect: 'follow',
 		})
 		clearTimeout(timeoutId)
 
