@@ -57,8 +57,6 @@ export async function fetchUrlTitle(url: string): Promise<string> {
 
 		const html = await res.text()
 
-		console.log('html', html)
-
 		const { title, metaTags } = getHeadChildNodes(html)
 
 		const titleElement =
