@@ -19,6 +19,7 @@
 		"@prisma/client": "^5.22.0",
 		"@t3-oss/env-core": "^0.11.1",
 		"@tqman/nice-logger": "^1.0.7",
+		"cheerio": "^1.0.0",
 		"consola": "^3.2.3",
 		"elysia": "latest",
 		"elysia-compression": "^0.0.7",
