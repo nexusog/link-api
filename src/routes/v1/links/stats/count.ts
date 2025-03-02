@@ -44,9 +44,6 @@ export const LinkStatsCountRoute = baseElysia().get(
 			},
 		)
 
-		console.log('sinceParsed', sinceParsed)
-		console.log('untilParsed', untilParsed)
-
 		const cacheKey = `${id}-SINCE:${sinceParsed.format('YYYY-MM-DDTHH:MM')}-UNTIL:${untilParsed.format('YYYY-MM-DDTHH:MM')}`
 
 		// get link record
