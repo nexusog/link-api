@@ -45,7 +45,7 @@ model ApiKey {
 model Link {
     id String @id
 
-    title String
+    title String?
     url   String
 
     shortName String? @unique

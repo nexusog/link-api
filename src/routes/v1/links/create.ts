@@ -10,6 +10,7 @@ import {
 	LinkURLSchema,
 } from '@/types/schemas/link'
 import { ApiKeyAuthorizationHeaders } from '@/types/schemas/middleware'
+import { fetchUrlTitle } from '@/utils/fetchUrlTitle'
 import { generateLinkId } from '@/utils/generator'
 import { logger } from '@/utils/logger'
 import { Responses } from '@nexusog/golakost'
@@ -19,7 +20,6 @@ import { t } from 'elysia'
 import { rateLimit } from 'elysia-rate-limit'
 
 export const CreateLinkBodySchema = t.Object({
-	title: LinkTitleSchema,
 	url: LinkURLSchema,
 	shortName: t.Optional(LinkShortNameSchema),
 })
@@ -36,11 +36,7 @@ export const LinkCreateRoute = baseElysia()
 	.post(
 		'',
 		async ({ body, error, workspaceId }) => {
-			const {
-				title: linkTitle,
-				shortName: linkShortName,
-				url: linkURL,
-			} = body
+			const { shortName: linkShortName, url: linkURL } = body
 
 			// check for existing link short name
 			if (linkShortName !== undefined) {
@@ -88,11 +84,19 @@ export const LinkCreateRoute = baseElysia()
 				process.exit(1)
 			}
 
+			let { error: URLFetchError, data: linkTitle } = await until(() =>
+				fetchUrlTitle(linkURL),
+			)
+
+			if (URLFetchError) {
+				logger.warn('Failed to fetch link title', URLFetchError)
+			}
+
 			const { error: LinkCreateError } = await until(() =>
 				db.link.create({
 					data: {
 						id: linkId,
-						title: linkTitle,
+						title: linkTitle ?? undefined,
 						url: linkURL,
 						shortName: linkShortName,
 						workspace: {
@@ -121,6 +125,7 @@ export const LinkCreateRoute = baseElysia()
 				data: {
 					id: linkId,
 					shortName: linkShortName,
+					title: linkTitle ?? undefined,
 				},
 			}
 		},
@@ -131,6 +136,7 @@ export const LinkCreateRoute = baseElysia()
 					t.Object({
 						id: LinkIdSchema,
 						shortName: t.Optional(LinkShortNameSchema),
+						title: t.Optional(LinkTitleSchema),
 					}),
 				),
 				500: Responses.ErrorResponseSchema,
