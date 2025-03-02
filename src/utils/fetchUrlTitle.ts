@@ -1,11 +1,27 @@
-import * as cheerio from 'cheerio'
+import { parse } from 'node-html-parser'
 
-/**
- * Fetches the title of a webpage given its URL.
- * @param url - The URL of the webpage.
- * @returns A promise that resolves with the page title.
- * @throws An error if the URL is invalid, unsupported, or if fetching/parsing fails.
- */
+export const getHeadChildNodes = (html: string) => {
+	const ast = parse(html)
+	const metaTags = ast.querySelectorAll('meta').map(({ attributes }) => {
+		const property =
+			attributes.property || attributes.name || attributes.href
+		return {
+			property,
+			content: attributes.content,
+		}
+	})
+	const title = ast.querySelector('title')?.innerText
+	const linkTags = ast.querySelectorAll('link').map(({ attributes }) => {
+		const { rel, href } = attributes
+		return {
+			rel,
+			href,
+		}
+	})
+
+	return { metaTags, title, linkTags }
+}
+
 export async function fetchUrlTitle(url: string): Promise<string> {
 	// Validate URL format
 	let validatedUrl: URL
@@ -15,7 +31,6 @@ export async function fetchUrlTitle(url: string): Promise<string> {
 		throw new Error('Invalid URL')
 	}
 
-	// Only allow http and https protocols.
 	if (
 		validatedUrl.protocol !== 'http:' &&
 		validatedUrl.protocol !== 'https:'
@@ -23,14 +38,16 @@ export async function fetchUrlTitle(url: string): Promise<string> {
 		throw new Error('Unsupported protocol')
 	}
 
-	// Set up an AbortController to timeout long requests.
 	const controller = new AbortController()
-	const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 seconds timeout
+	const timeoutId = setTimeout(() => controller.abort(), 5000)
 
 	try {
 		const res = await fetch(validatedUrl.toString(), {
 			signal: controller.signal,
-			redirect: 'follow',
+			headers: {
+				// LINK https://stackoverflow.com/a/46616889/13576395
+				'User-Agent': 'facebookexternalhit/1.1',
+			},
 		})
 		clearTimeout(timeoutId)
 
@@ -39,12 +56,21 @@ export async function fetchUrlTitle(url: string): Promise<string> {
 		}
 
 		const html = await res.text()
-		const $ = cheerio.load(html)
-		const titleElement = $('title')
+
+		console.log('html', html)
+
+		const { title, metaTags } = getHeadChildNodes(html)
+
+		const titleElement =
+			metaTags.find((e) => e.property === 'og:title')?.content ||
+			metaTags.find((e) => e.property === 'og:twitter')?.content ||
+			title ||
+			null
+
 		if (!titleElement) {
 			throw new Error('Title not found')
 		}
-		return titleElement.text().trim()
+		return titleElement
 	} catch (error) {
 		throw new Error('Error fetching title' + error)
 	}
