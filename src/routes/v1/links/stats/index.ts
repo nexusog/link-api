@@ -102,6 +102,7 @@ export const LinkStatsRoutes = baseElysia({
 										gte: sinceParsed.toDate(),
 										lte: untilParsed.toDate(),
 									},
+									shouldCount: true,
 								},
 								select: {
 									id: true,

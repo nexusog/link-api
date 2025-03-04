@@ -71,6 +71,7 @@ export const LinkStatsCountRoute = baseElysia().get(
 											gte: sinceParsed.toDate(),
 											lte: untilParsed.toDate(),
 										},
+										shouldCount: true,
 									},
 								},
 							},

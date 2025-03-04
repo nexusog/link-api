@@ -71,6 +71,8 @@ model Engagement {
     link   Link   @relation(fields: [linkId], references: [id], onDelete: Cascade)
     linkId String
 
+    shouldCount Boolean @default(true)
+
     createdAt DateTime @default(now())
 }
 
