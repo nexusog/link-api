@@ -6,6 +6,7 @@ import { defaultRateLimitOptions } from '@/middlewares/rateLimit'
 import {
 	LinkIdSchema,
 	LinkShortNameSchema,
+	LinkSmartEngagementCountingSettingSchema,
 	LinkTitleSchema,
 	LinkURLSchema,
 } from '@/types/schemas/link'
@@ -22,6 +23,9 @@ import { rateLimit } from 'elysia-rate-limit'
 export const CreateLinkBodySchema = t.Object({
 	url: LinkURLSchema,
 	shortName: t.Optional(LinkShortNameSchema),
+	smartEngagementCounting: t.Optional(
+		LinkSmartEngagementCountingSettingSchema,
+	),
 })
 
 export const LinkCreateRoute = baseElysia()
@@ -36,7 +40,11 @@ export const LinkCreateRoute = baseElysia()
 	.post(
 		'',
 		async ({ body, error, workspaceId }) => {
-			const { shortName: linkShortName, url: linkURL } = body
+			const {
+				shortName: linkShortName,
+				url: linkURL,
+				smartEngagementCounting,
+			} = body
 
 			// check for existing link short name
 			if (linkShortName !== undefined) {
@@ -99,6 +107,7 @@ export const LinkCreateRoute = baseElysia()
 						title: linkTitle ?? undefined,
 						url: linkURL,
 						shortName: linkShortName,
+						smartEngagementCounting,
 						workspace: {
 							connect: {
 								id: workspaceId,

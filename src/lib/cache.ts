@@ -7,6 +7,7 @@ import { env } from './env'
 type RedirectRouteLinkFetchCacheValue = {
 	id: string
 	url: string
+	smartEngagementCounting: boolean | null
 } | null
 export const RedirectRouteLinkFetchCacheMemoizer = Modules.globalize(
 	'RedirectRouteLinkFetchCacheMemoizer',

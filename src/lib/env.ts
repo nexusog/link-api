@@ -77,6 +77,9 @@ export const env = createEnv({
 		REDIRECT_LINK_FETCH_CACHE_TTL: zodUint
 			.optional()
 			.default(moment.duration(1, 'minute').asMilliseconds()),
+		REDIRECT_SMART_ENGAGEMENT_COUNTING_TRACING_COOKIE_AGE: zodUint
+			.optional()
+			.default(7),
 
 		// GET /links/{id}/stats
 		STATS_RATE_LIMIT: zodUint.optional().default(100),
@@ -87,6 +90,7 @@ export const env = createEnv({
 			.optional()
 			.default(moment.duration(30, 'seconds').asMilliseconds()),
 
+		// GET /links/{id}/stats/count
 		STATS_COUNT_RATE_LIMIT: zodUint.optional().default(200),
 		STATS_COUNT_RATE_LIMIT_DURATION_MS: zodUint
 			.optional()

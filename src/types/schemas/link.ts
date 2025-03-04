@@ -29,3 +29,8 @@ export const LinkShortNameSchema = t.String({
 })
 
 export const LinkEngagementTypeSchema = t.Enum(EngagementType)
+
+export const LinkSmartEngagementCountingSettingSchema = t.Boolean({
+	default: false,
+	description: 'Whether to enable smart engagement counting feature',
+})
