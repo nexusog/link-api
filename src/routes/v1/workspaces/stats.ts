@@ -51,6 +51,7 @@ export const WorkspaceStatsRoute = baseElysia()
 													.subtract(7, 'days')
 													.toDate(),
 											},
+											shouldCount: true,
 										},
 										orderBy: {
 											createdAt: 'desc',
@@ -93,7 +94,11 @@ export const WorkspaceStatsRoute = baseElysia()
 					},
 					select: {
 						id: true,
-						_count: { select: { engagements: true } },
+						_count: {
+							select: {
+								engagements: { where: { shouldCount: true } },
+							},
+						},
 					},
 					take: 3,
 				}),
@@ -117,7 +122,7 @@ export const WorkspaceStatsRoute = baseElysia()
 				data: {
 					numberOfLinks: workspace._count.links,
 					totalEngagements: workspace.links.reduce((acc, link) => {
-						return acc + link._count.engagements
+						return acc + link.engagements.length
 					}, 0),
 					totalEngagementsLastWeek: workspace.links.reduce(
 						(acc, link) => {

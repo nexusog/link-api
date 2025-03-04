@@ -78,35 +78,34 @@ export const LinkRedirectRoute = baseElysia()
 				shouldRegisterEngagement = false
 			}
 
-			if (shouldRegisterEngagement) {
-				until(() =>
-					db.engagement.create({
-						data: {
-							link: {
-								connect: {
-									id: link.id,
-								},
+			until(() =>
+				db.engagement.create({
+					data: {
+						link: {
+							connect: {
+								id: link.id,
 							},
-							engagementType: type,
 						},
-						select: {
-							id: true,
-						},
-					}),
-				).then(({ error: LinkEngagementCreateError }) => {
-					if (LinkEngagementCreateError) {
-						logger.fail(
-							`Failed to create link engagement (ID: ${link.id}, Type: ${type})`,
-							LinkEngagementCreateError,
-						)
-					}
-				})
-
-				if (link.smartEngagementCounting) {
-					cookie[tracingCookieName].value = Date.now().toString()
-					cookie[tracingCookieName].maxAge =
-						env.REDIRECT_SMART_ENGAGEMENT_COUNTING_TRACING_COOKIE_AGE
+						engagementType: type,
+						shouldCount: shouldRegisterEngagement,
+					},
+					select: {
+						id: true,
+					},
+				}),
+			).then(({ error: LinkEngagementCreateError }) => {
+				if (LinkEngagementCreateError) {
+					logger.fail(
+						`Failed to create link engagement (ID: ${link.id}, Type: ${type})`,
+						LinkEngagementCreateError,
+					)
 				}
+			})
+
+			if (link.smartEngagementCounting) {
+				cookie[tracingCookieName].value = Date.now().toString()
+				cookie[tracingCookieName].maxAge =
+					env.REDIRECT_SMART_ENGAGEMENT_COUNTING_TRACING_COOKIE_AGE
 			}
 
 			set.headers['cache-control'] =
