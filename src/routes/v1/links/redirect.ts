@@ -25,7 +25,7 @@ export const LinkRedirectRoute = baseElysia()
 	)
 	.get(
 		'/:id/redirect',
-		async ({ query, params, error: sendError, set }) => {
+		async ({ query, params, error: sendError, set, cookie }) => {
 			const { id } = params
 			const { type } = query
 
@@ -46,6 +46,7 @@ export const LinkRedirectRoute = baseElysia()
 						select: {
 							id: true,
 							url: true,
+							smartEngagementCounting: true,
 						},
 					}),
 				),
@@ -66,28 +67,47 @@ export const LinkRedirectRoute = baseElysia()
 				})
 			}
 
-			until(() =>
-				db.engagement.create({
-					data: {
-						link: {
-							connect: {
-								id: link.id,
+			const tracingCookieName = `LR-${link.id}`
+
+			let shouldRegisterEngagement = true
+
+			if (
+				link.smartEngagementCounting &&
+				cookie[tracingCookieName].value !== undefined
+			) {
+				shouldRegisterEngagement = false
+			}
+
+			if (shouldRegisterEngagement) {
+				until(() =>
+					db.engagement.create({
+						data: {
+							link: {
+								connect: {
+									id: link.id,
+								},
 							},
+							engagementType: type,
 						},
-						engagementType: type,
-					},
-					select: {
-						id: true,
-					},
-				}),
-			).then(({ error: LinkEngagementCreateError }) => {
-				if (LinkEngagementCreateError) {
-					logger.fail(
-						`Failed to create link engagement (ID: ${link.id}, Type: ${type})`,
-						LinkEngagementCreateError,
-					)
+						select: {
+							id: true,
+						},
+					}),
+				).then(({ error: LinkEngagementCreateError }) => {
+					if (LinkEngagementCreateError) {
+						logger.fail(
+							`Failed to create link engagement (ID: ${link.id}, Type: ${type})`,
+							LinkEngagementCreateError,
+						)
+					}
+				})
+
+				if (link.smartEngagementCounting) {
+					cookie[tracingCookieName].value = Date.now().toString()
+					cookie[tracingCookieName].maxAge =
+						env.REDIRECT_SMART_ENGAGEMENT_COUNTING_TRACING_COOKIE_AGE
 				}
-			})
+			}
 
 			set.headers['cache-control'] =
 				`public, max-age=${moment.duration(env.REDIRECT_LINK_FETCH_CACHE_TTL, 'milliseconds').asSeconds()}`

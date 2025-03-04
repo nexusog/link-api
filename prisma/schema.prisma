@@ -50,6 +50,8 @@ model Link {
 
     shortName String? @unique
 
+    smartEngagementCounting Boolean? @default(false)
+
     engagements Engagement[]
 
     workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
