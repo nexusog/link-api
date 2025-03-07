@@ -17,7 +17,7 @@
 		"@nexusog/crypto": "^1.0.0-alpha.3",
 		"@nexusog/golakost": "^0.3.0",
 		"@open-draft/until": "^2.1.0",
-		"@prisma/client": "^5.22.0",
+		"@prisma/client": "^6.4.1",
 		"@t3-oss/env-core": "^0.11.1",
 		"@tqman/nice-logger": "^1.0.7",
 		"cheerio": "^1.0.0",
@@ -33,7 +33,7 @@
 	"devDependencies": {
 		"bun-types": "latest",
 		"prettier": "^3.3.3",
-		"prisma": "^5.22.0"
+		"prisma": "^6.4.1"
 	},
 	"module": "src/index.js"
 }

@@ -54,6 +54,8 @@ model Link {
 
     engagements Engagement[]
 
+    enabled Boolean @default(true)
+
     workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId String
 
