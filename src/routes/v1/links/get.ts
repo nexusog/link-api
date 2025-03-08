@@ -2,8 +2,10 @@ import { baseElysia } from '@/base'
 import db from '@/lib/db'
 import { apiKeyAuthorizationMiddleware } from '@/middlewares/auth'
 import {
+	LinkEnabledSchema,
 	LinkIdSchema,
 	LinkShortNameSchema,
+	LinkSmartEngagementCountingSettingSchema,
 	LinkTitleSchema,
 	LinkURLSchema,
 } from '@/types/schemas/link'
@@ -92,6 +94,8 @@ export const LinkGetRoute = baseElysia()
 						url: true,
 						createdAt: true,
 						updatedAt: true,
+						enabled: true,
+						smartEngagementCounting: true,
 					},
 					orderBy,
 					skip,
@@ -162,6 +166,9 @@ export const LinkGetRoute = baseElysia()
 								shortName: t.Nullable(LinkShortNameSchema),
 								title: t.Nullable(LinkTitleSchema),
 								url: LinkURLSchema,
+								enabled: LinkEnabledSchema,
+								smartEngagementCounting:
+									LinkSmartEngagementCountingSettingSchema,
 								createdAt: t.Date(),
 								updatedAt: t.Date(),
 							}),
@@ -193,6 +200,8 @@ export const LinkGetRoute = baseElysia()
 							shortName: true,
 							title: true,
 							url: true,
+							enabled: true,
+							smartEngagementCounting: true,
 							createdAt: true,
 							updatedAt: true,
 						},
@@ -219,14 +228,7 @@ export const LinkGetRoute = baseElysia()
 			return {
 				error: false,
 				message: 'Link found',
-				data: {
-					id: linkRecord.id,
-					shortName: linkRecord.shortName,
-					title: linkRecord.title,
-					url: linkRecord.url,
-					createdAt: linkRecord.createdAt,
-					updatedAt: linkRecord.updatedAt,
-				},
+				data: linkRecord,
 			}
 		},
 		{
@@ -237,6 +239,9 @@ export const LinkGetRoute = baseElysia()
 						shortName: t.Nullable(LinkShortNameSchema),
 						title: t.Nullable(LinkTitleSchema),
 						url: LinkURLSchema,
+						enabled: LinkEnabledSchema,
+						smartEngagementCounting:
+							LinkSmartEngagementCountingSettingSchema,
 						createdAt: t.Date(),
 						updatedAt: t.Date(),
 					}),
