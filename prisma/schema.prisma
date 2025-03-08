@@ -50,7 +50,7 @@ model Link {
 
     shortName String? @unique
 
-    smartEngagementCounting Boolean? @default(false)
+    smartEngagementCounting Boolean @default(false)
 
     engagements Engagement[]
 

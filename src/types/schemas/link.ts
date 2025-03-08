@@ -34,3 +34,7 @@ export const LinkSmartEngagementCountingSettingSchema = t.Boolean({
 	default: false,
 	description: 'Whether to enable smart engagement counting feature',
 })
+
+export const LinkEnabledSchema = t.Boolean({
+	description: 'Whether the link is enabled',
+})
