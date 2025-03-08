@@ -34,7 +34,6 @@ CREATE TABLE "Link" (
     "url" TEXT NOT NULL,
     "shortName" TEXT,
     "smartEngagementCounting" BOOLEAN DEFAULT false,
-    "enabled" BOOLEAN NOT NULL DEFAULT true,
     "workspaceId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
