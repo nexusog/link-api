@@ -26,6 +26,7 @@ export const RedirectRouteLinkFetchCacheMemoizer = Modules.globalize(
 			{
 				get: (cache, key) => cache.get(key),
 				set: (cache, key, value) => cache.set(key, value),
+				remove: (cache, key) => cache.delete(key),
 			},
 		),
 )

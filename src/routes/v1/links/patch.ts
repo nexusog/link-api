@@ -1,4 +1,5 @@
 import { baseElysia } from '@/base'
+import { RedirectRouteLinkFetchCacheMemoizer } from '@/lib/cache'
 import db from '@/lib/db'
 import { apiKeyAuthorizationMiddleware } from '@/middlewares/auth'
 import {
@@ -55,6 +56,9 @@ export const LinkPatchRoute = baseElysia({
 					message: 'Failed to update link',
 				})
 			}
+
+			// remove cache
+			RedirectRouteLinkFetchCacheMemoizer.remove(linkId)
 
 			return {
 				error: false,

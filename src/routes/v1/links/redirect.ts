@@ -42,6 +42,7 @@ export const LinkRedirectRoute = baseElysia()
 									shortName: id,
 								},
 							],
+							enabled: true,
 						},
 						select: {
 							id: true,
