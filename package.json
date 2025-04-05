@@ -11,30 +11,30 @@
 	},
 	"dependencies": {
 		"@bogeychan/elysia-etag": "^0.1.0",
-		"@elysiajs/cors": "^1.1.1",
+		"@elysiajs/cors": "^1.2.0",
 		"@elysiajs/cron": "^1.2.0",
-		"@elysiajs/swagger": "^1.2.1",
+		"@elysiajs/swagger": "^1.2.2",
 		"@isaacs/ttlcache": "^1.4.1",
-		"@nexusog/crypto": "^1.0.0-alpha.3",
-		"@nexusog/golakost": "^0.3.0",
+		"@nexusog/crypto": "^1.0.0-alpha.14",
+		"@nexusog/golakost": "^0.3.1",
 		"@open-draft/until": "^2.1.0",
-		"@prisma/client": "^6.4.1",
+		"@prisma/client": "^6.5.0",
 		"@t3-oss/env-core": "^0.11.1",
-		"@tqman/nice-logger": "^1.0.7",
+		"@tqman/nice-logger": "^1.1.1",
 		"cheerio": "^1.0.0",
-		"consola": "^3.2.3",
+		"consola": "^3.4.2",
 		"elysia": "latest",
 		"elysia-compression": "^0.0.7",
 		"elysia-ip": "^1.0.8",
-		"elysia-rate-limit": "^4.1.0",
+		"elysia-rate-limit": "^4.3.0",
 		"moment": "^2.30.1",
 		"node-html-parser": "^7.0.1",
-		"zod": "^3.23.8"
+		"zod": "^3.24.2"
 	},
 	"devDependencies": {
 		"bun-types": "latest",
-		"prettier": "^3.3.3",
-		"prisma": "^6.4.1"
+		"prettier": "^3.5.3",
+		"prisma": "^6.5.0"
 	},
 	"module": "src/index.js"
 }
